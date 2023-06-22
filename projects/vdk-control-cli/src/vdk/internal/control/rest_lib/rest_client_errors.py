@@ -35,7 +35,7 @@ class ApiClientErrorDecorator:
                     "Investigate (google) the error returned by control service."
                     "And if all fails try to contact the support team.",
                 )
-            if exception.status == 404:
+            elif exception.status == 404:
                 error = dict(
                     what=self.__what,
                     why="The requested resource cannot be found. "

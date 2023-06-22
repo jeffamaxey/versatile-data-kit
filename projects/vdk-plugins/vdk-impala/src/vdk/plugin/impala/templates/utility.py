@@ -23,8 +23,7 @@ def get_file_content(sql_files_folder, sql_file_name):
     """
     query_full_path = os.path.join(sql_files_folder, sql_file_name)
     with open(query_full_path) as query:
-        content = query.read()
-        return content
+        return query.read()
 
 
 def align_stg_table_with_target(target_table, stg_table, job_input):

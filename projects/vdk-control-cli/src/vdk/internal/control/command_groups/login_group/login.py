@@ -135,16 +135,7 @@ def login(
             sys.exit(1)
 
     elif auth_type == LoginTypes.API_TOKEN.value:
-        api_token = cli_utils.get_or_prompt("Oauth2 API token", api_token)
-        if not api_token:
-            raise VDKException(
-                what="Login failed",
-                why=f"Login type: {auth_type} requires API token",
-                consequence=f"Previous login will be used if still valid, "
-                f"otherwise operation that require authorization will fail.",
-                countermeasure="Please login providing correct API Token. ",
-            )
-        else:
+        if api_token := cli_utils.get_or_prompt("Oauth2 API token", api_token):
             apikey_auth = Authentication(
                 authorization_url=api_token_authorization_url,
                 token=api_token,
@@ -157,5 +148,12 @@ def login(
                 click.echo(f"Login failed. Error was: {e.message}")
                 sys.exit(1)
             click.echo("Login Successful")
+        else:
+            raise VDKException(
+                what="Login failed",
+                why=f"Login type: {auth_type} requires API token",
+                consequence='Previous login will be used if still valid, otherwise operation that require authorization will fail.',
+                countermeasure="Please login providing correct API Token. ",
+            )
     else:
         click.echo(f"Login type: {auth_type} not supported")

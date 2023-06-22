@@ -85,5 +85,4 @@ def _setup_and_create_properties_client(
         method="GET",
         uri="/data-jobs/for-team/test-team/jobs/test-job/deployments/TODO/properties",
     ).respond_with_response(response)
-    props = ControlServicePropertiesServiceClient(api_url)
-    return props
+    return ControlServicePropertiesServiceClient(api_url)

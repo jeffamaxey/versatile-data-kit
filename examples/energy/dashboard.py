@@ -33,7 +33,7 @@ st.markdown(
 )
 
 df = pd.read_sql_query(
-    f"SELECT Year, NormPrice, NormTemperatureMuchAboveNormal, NormTemperatureMuchBelowNormal FROM merged_tables",
+    "SELECT Year, NormPrice, NormTemperatureMuchAboveNormal, NormTemperatureMuchBelowNormal FROM merged_tables",
     conn,
 )
 

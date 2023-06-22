@@ -69,32 +69,29 @@ class EmailNotification(INotification):
         :param subject: The subject of the email
         :param body: The email job
         """
-        valid_recipients = ",".join(self._get_valid_recipients())
-        if valid_recipients:
+        if valid_recipients := ",".join(self._get_valid_recipients()):
             email_message = self._build_message(subject, body, valid_recipients)
             self._send_message(email_message)
+        elif valid_cc := ",".join(self._get_valid_cc()):
+            logging.getLogger(__name__).warning(
+                "No valid recipient address is given"
+            )
+            email_message = self._build_message(
+                subject,
+                (
+                    "This message is sent to the list of CC'd addresses "
+                    "because none of the listed recipient addresses are valid, or none were provided.\n\n"
+                )
+                + body,
+                valid_cc,
+            )
+            self._send_message(email_message)
+        elif self._cc:
+            logging.getLogger(__name__).warning(
+                "No valid recipients or CC addresses given"
+            )
         else:
-            valid_cc = ",".join(self._get_valid_cc())
-            if valid_cc:
-                logging.getLogger(__name__).warning(
-                    "No valid recipient address is given"
-                )
-                email_message = self._build_message(
-                    subject,
-                    (
-                        "This message is sent to the list of CC'd addresses "
-                        "because none of the listed recipient addresses are valid, or none were provided.\n\n"
-                    )
-                    + body,
-                    valid_cc,
-                )
-                self._send_message(email_message)
-            elif (not valid_cc) and self._cc:
-                logging.getLogger(__name__).warning(
-                    "No valid recipients or CC addresses given"
-                )
-            else:
-                logging.getLogger(__name__).debug("Empty list of recipients is given")
+            logging.getLogger(__name__).debug("Empty list of recipients is given")
 
     def _send_message(self, msg):
         log.debug(f"Send message {msg}")
@@ -198,9 +195,7 @@ class EmailNotificationMessageBuilder(ABC):
 
     def _get_job_log_chunk(self, op_id):
         return (
-            '<p>You can find full logs of the job execution <a href="{}"> here <a>.</p>'.format(
-                self._get_job_log_url(op_id.strip())
-            )
+            f'<p>You can find full logs of the job execution <a href="{self._get_job_log_url(op_id.strip())}"> here <a>.</p>'
             if op_id
             else ""
         )
@@ -251,9 +246,7 @@ class InfraErrorEmailNotificationMessageBuilder(EmailNotificationMessageBuilder)
             ).to_html()
         else:
             logging.getLogger(__name__).warning(
-                "Unknown exec_type [{}]".format(
-                    exec_type if exec_type is not None else "None"
-                )
+                f'Unknown exec_type [{exec_type if exec_type is not None else "None"}]'
             )
             exec_type = ""
             error_msg = "There has been a platform error. The error will be resolved by the Versatile Data Kit team."

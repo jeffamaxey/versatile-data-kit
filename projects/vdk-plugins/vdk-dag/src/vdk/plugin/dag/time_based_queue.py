@@ -58,10 +58,9 @@ class TimeBasedQueue:
             entry = self._elements[0]
             if entry.ready_time <= time.time():
                 return self._elements.popleft().element
-            else:
-                self.__wait_for_entry_to_be_ready(entry.ready_time)
-                if entry.ready_time <= time.time():
-                    return self._elements.popleft().element
+            self.__wait_for_entry_to_be_ready(entry.ready_time)
+            if entry.ready_time <= time.time():
+                return self._elements.popleft().element
         return None
 
     def size(self):

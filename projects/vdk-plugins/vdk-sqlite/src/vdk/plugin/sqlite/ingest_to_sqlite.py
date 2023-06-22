@@ -131,7 +131,7 @@ class IngestToSQLite(IIngesterPlugin):
                         errors.ResolvableBy.PLATFORM_ERROR,
                         log,
                         "Failed to sent payload",
-                        "Unknown error. Error message was : " + str(e),
+                        f"Unknown error. Error message was : {str(e)}",
                         "Will not be able to send the payload for ingestion",
                         "See error message for help ",
                         e,
@@ -161,13 +161,12 @@ class IngestToSQLite(IIngesterPlugin):
         :param destination_table: the table name queried
         :return: return a list of tuples in format: [(column_name, column_type), ...]
         """
-        # https://tableplus.com/blog/2018/04/sqlite-check-whether-a-table-exists.html
-        columns = []
-        for row in cur.execute(
-            f"select name, type from PRAGMA_TABLE_INFO('{destination_table}');"
-        ):
-            columns.append((row[0], row[1]))
-        return columns
+        return [
+            (row[0], row[1])
+            for row in cur.execute(
+                f"select name, type from PRAGMA_TABLE_INFO('{destination_table}');"
+            )
+        ]
 
     def __create_query(self, destination_table: str, cur: Cursor) -> Tuple[list, str]:
         fields = [
@@ -178,7 +177,7 @@ class IngestToSQLite(IIngesterPlugin):
         ]
         # the query fstring evaluates to 'INSERT INTO dest_table (val1, val2, val3) VALUES (:val1, :val2, :val3)'
         # assuming dest_table is the destination_table and val1, val2, val3 are the fields of that table
-        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([':' + field for field in fields])})"
+        query = f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES ({', '.join([f':{field}' for field in fields])})"
 
         return fields, query
 
@@ -215,12 +214,10 @@ class IngestToSQLite(IIngesterPlugin):
         :param payload: the payload
         :return: dictionary with key being column name and value the type: dict[column_name, column_type]
         """
-        columns = dict()
+        columns = {}
         for row in payload:
             for col, val in row.items():
-                if col not in columns:
-                    columns[col] = self.__python_value_to_sqlite_type(val)
-                elif columns[col] == "NULL":
+                if col not in columns or columns[col] == "NULL":
                     columns[col] = self.__python_value_to_sqlite_type(val)
         # if there's column with NULL only, set type to TEXT.
         columns = {
@@ -232,13 +229,10 @@ class IngestToSQLite(IIngesterPlugin):
     def __python_value_to_sqlite_type(value: Any):
         # https://www.sqlite.org/datatype3.html
         value_type = type(value)
-        if value_type == bool or value_type == int:
+        if value_type in [bool, int]:
             return "INTEGER"
         if value_type == bytes:
             return "BLOB"
         if value_type == float:
             return "REAL"
-        if value_type == type(None):
-            return "NULL"
-        else:
-            return "TEXT"
+        return "NULL" if value_type == type(None) else "TEXT"

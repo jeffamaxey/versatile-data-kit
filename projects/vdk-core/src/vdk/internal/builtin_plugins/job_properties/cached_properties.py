@@ -18,8 +18,7 @@ class CachedPropertiesWrapper(IProperties):
         )
 
     def get_property(self, name, default_value=None):
-        res = self._get_cached_dict().get(name, default_value)
-        return res
+        return self._get_cached_dict().get(name, default_value)
 
     def get_all_properties(self):
         return self._get_cached_dict()

@@ -21,9 +21,11 @@ def test_properties_plugin(httpserver: PluginHTTPServer):
 
     httpserver.expect_request(
         method="GET",
-        uri=f"/data-jobs/for-team/test-team/jobs/properties-job/deployments/TODO/properties",
+        uri="/data-jobs/for-team/test-team/jobs/properties-job/deployments/TODO/properties",
     ).respond_with_handler(
-        lambda r: Response(status=200, response=json.dumps(properties_data, indent=4))
+        lambda r: Response(
+            status=200, response=json.dumps(properties_data, indent=4)
+        )
     )
 
     def update_properties_data(req: Request):
@@ -33,7 +35,7 @@ def test_properties_plugin(httpserver: PluginHTTPServer):
 
     httpserver.expect_request(
         method="PUT",
-        uri=f"/data-jobs/for-team/test-team/jobs/properties-job/deployments/TODO/properties",
+        uri="/data-jobs/for-team/test-team/jobs/properties-job/deployments/TODO/properties",
     ).respond_with_handler(update_properties_data)
 
     with mock.patch.dict(

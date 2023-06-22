@@ -86,7 +86,7 @@ class HookRecorder:
         """
         Get a list of currently record calls
         """
-        return [call for call in self.calls]
+        return list(self.calls)
 
 
 @click.command(help="Print hello and the CLI context.")
@@ -95,18 +95,15 @@ def hello(ctx: click.Context) -> None:
     """
     Just prints hello for testing purposes.
     """
-    click.echo(f"Hello! Nice to meet you. Here are some nerdy details about me:")
+    click.echo("Hello! Nice to meet you. Here are some nerdy details about me:")
     import json
 
     def _default_handler(o: Any) -> Any:
         from vdk.internal.core.context import CoreContext
         from vdk.internal.core.config import Configuration
 
-        if (
-            isinstance(o, click.core.Context)
-            or isinstance(o, JobContext)
-            or isinstance(o, CoreContext)
-            or isinstance(o, Configuration)
+        if isinstance(
+            o, (click.core.Context, JobContext, CoreContext, Configuration)
         ):
             return vars(o)
         return str(o)

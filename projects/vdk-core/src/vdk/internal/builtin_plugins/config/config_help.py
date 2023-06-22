@@ -51,7 +51,7 @@ def description_cleanup(config_variable: str, description: str, description_star
         description = re.sub("\n ", "\n", description)
         description = description.strip()
         if len(config_variable) > description_start:
-            description = "  " + description
+            description = f"  {description}"
     return description
 
 
@@ -74,11 +74,10 @@ def formatted_configuration_help(
 
 def generate_config_list_help(variable_to_description_map):
     config_list = "\n\n"
-    conf_variable_list = []
-    for key in variable_to_description_map:
-        conf_variable_list.append(
-            formatted_configuration_help(key, variable_to_description_map[key])
-        )
+    conf_variable_list = [
+        formatted_configuration_help(key, variable_to_description_map[key])
+        for key in variable_to_description_map
+    ]
     return config_list.join(conf_variable_list)
 
 
@@ -113,8 +112,7 @@ def config_help(ctx: click.Context) -> None:
     vars_to_descriptions = {}
     providers_descriptions = {}
     for k in configuration.list_config_keys():
-        description = configuration.get_description(k)
-        if description:
+        if description := configuration.get_description(k):
             if k.startswith("__config_provider__"):
                 name = k[len("__config_provider__") :].strip()
                 providers_descriptions[name] = description

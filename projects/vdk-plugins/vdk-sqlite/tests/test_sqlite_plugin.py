@@ -16,13 +16,7 @@ from vdk.plugin.test_utils.util_funcs import jobs_path_from_caller_directory
 
 # uses the pytest tmpdir fixture - https://docs.pytest.org/en/6.2.x/tmpdir.html#the-tmpdir-fixture
 def test_sqlite_plugin(tmpdir):
-    with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
-        },
-    ):
+    with mock.patch.dict(os.environ, {"VDK_DB_DEFAULT_TYPE": "SQLITE", "VDK_SQLITE_FILE": f"{str(tmpdir)}vdk-sqlite.db"}):
         runner = CliEntryBasedTestRunner(sqlite_plugin)
 
         result: Result = runner.invoke(
@@ -32,7 +26,7 @@ def test_sqlite_plugin(tmpdir):
         cli_assert_equal(0, result)
 
         actual_rs: Result = runner.invoke(
-            ["sqlite-query", "--query", f"SELECT * FROM stocks"]
+            ["sqlite-query", "--query", "SELECT * FROM stocks"]
         )
 
         cli_assert_equal(0, actual_rs)
@@ -40,7 +34,7 @@ def test_sqlite_plugin(tmpdir):
 
 
 def test_sqlite_ingestion(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
@@ -80,7 +74,7 @@ def test_sqlite_ingestion(tmpdir):
 
 
 def test_sqlite_ingestion_missing_dest_table(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
@@ -132,7 +126,7 @@ def test_sqlite_ingestion_missing_dest_table(tmpdir):
 
 
 def test_sqlite_ingestion_column_names_mismatch(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {

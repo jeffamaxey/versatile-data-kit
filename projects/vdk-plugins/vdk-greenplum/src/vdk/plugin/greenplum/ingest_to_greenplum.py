@@ -40,8 +40,8 @@ class IngestToGreenplum(IIngesterPlugin):
         )
 
         with self._context.connections.open_connection(
-            "GREENPLUM"
-        ).connect() as connection:
+                "GREENPLUM"
+            ).connect() as connection:
             cursor = connection.cursor()
             query, parameters = self._populate_query_parameters_tuple(
                 destination_table, cursor, payload
@@ -56,7 +56,7 @@ class IngestToGreenplum(IIngesterPlugin):
                     errors.find_whom_to_blame_from_exception(e),
                     _log,
                     "Failed to send payload",
-                    "Unknown error. Error message was : " + str(e),
+                    f"Unknown error. Error message was : {str(e)}",
                     "Will not be able to send the payload for ingestion",
                     "See error message for help ",
                     e,
@@ -84,10 +84,9 @@ class IngestToGreenplum(IIngesterPlugin):
         cursor.execute(f"SELECT * FROM {destination_table} WHERE false")
         columns = [c.name for c in cursor.description]
 
-        row_placeholder = f"({', '.join('%s' for column in columns)})"
+        row_placeholder = f"({', '.join('%s' for _ in columns)})"
 
         return (
-            f"INSERT INTO {destination_table} ({', '.join(columns)}) "
-            f"VALUES {', '.join([row_placeholder for i in range(len(payload))])}",
+            f"INSERT INTO {destination_table} ({', '.join(columns)}) VALUES {', '.join([row_placeholder for _ in range(len(payload))])}",
             tuple(obj[column] for obj in payload for column in columns),
         )

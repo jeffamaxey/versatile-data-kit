@@ -76,8 +76,8 @@ class TestTemplateRegression(unittest.TestCase):
         actual_rs = self._run_query(f"SELECT * FROM {test_schema}.{target_table}")
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{source_view}")
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         assert actual_rs.output and expected_rs.output
         self.assertSetEqual(
@@ -440,8 +440,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -473,8 +473,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -504,8 +504,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -565,8 +565,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -730,8 +730,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -760,8 +760,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."
@@ -793,8 +793,8 @@ class TestTemplateRegression(unittest.TestCase):
         expected_rs = self._run_query(f"SELECT * FROM {test_schema}.{expect_table}")
         assert actual_rs.output and expected_rs.output
 
-        actual = {x for x in actual_rs.output.split("\n")}
-        expected = {x for x in expected_rs.output.split("\n")}
+        actual = set(actual_rs.output.split("\n"))
+        expected = set(expected_rs.output.split("\n"))
 
         self.assertSetEqual(
             actual, expected, f"Elements in {expect_table} and {target_table} differ."

@@ -59,7 +59,7 @@ class Installer:
         Installs all necessary components and configurations.
         """
         log.info(
-            f"Starting installation of Versatile Data Kit Control Service (this may take several minutes)"
+            "Starting installation of Versatile Data Kit Control Service (this may take several minutes)"
         )
         self.__create_kind_cluster()
         self.__create_docker_registry_container()
@@ -97,7 +97,7 @@ class Installer:
         self.__delete_git_server_container()
         self.__delete_docker_registry_container()
         self.__cleanup_configuration()
-        log.info(f"Versatile Data Kit Control Service uninstalled successfully")
+        log.info("Versatile Data Kit Control Service uninstalled successfully")
 
     def check_status(self):
         if (
@@ -298,10 +298,10 @@ class Installer:
             kind_network_details = docker_client.api.inspect_network(kind_network["Id"])
             # Extract the container's IP
             containers = kind_network_details["Containers"]
-            container_id = next(
-                (c for c in containers if containers[c]["Name"] == container_name), None
-            )
-            if container_id:
+            if container_id := next(
+                (c for c in containers if containers[c]["Name"] == container_name),
+                None,
+            ):
                 return self.__remove_ip_subnet_mask(
                     containers[container_id]["IPv4Address"]
                 )
@@ -313,9 +313,7 @@ class Installer:
     @staticmethod
     def __remove_ip_subnet_mask(ip: str) -> str:
         pos = ip.find("/")
-        if pos == -1:
-            return ip
-        return ip[:pos]
+        return ip if pos == -1 else ip[:pos]
 
     def __configure_git_server_with_error_handling(self):
         """

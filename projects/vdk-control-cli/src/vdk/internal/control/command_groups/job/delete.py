@@ -61,4 +61,3 @@ class JobDelete:
 def delete(name: str, team: str, rest_api_url: str):
     cmd = JobDelete(rest_api_url)
     cmd.delete_job(name, team)
-    pass

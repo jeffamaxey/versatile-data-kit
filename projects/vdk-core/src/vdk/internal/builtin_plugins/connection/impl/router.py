@@ -39,10 +39,10 @@ class ManagedConnectionRouter(IManagedConnectionRegistry):
         self._cfg: Configuration = cfg
         self._connection_hook_spec_factory = connection_hook_spec_factory
         self._log: logging.Logger = logging.getLogger(__name__)
-        self._connections: Dict[str, ManagedConnectionBase] = dict()
+        self._connections: Dict[str, ManagedConnectionBase] = {}
         self._connection_builders: Dict[
             str, Callable[[], ManagedConnectionBase]
-        ] = dict()
+        ] = {}
 
     def add_open_connection_factory_method(
         self,

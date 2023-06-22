@@ -51,13 +51,10 @@ class DataJobsServiceProperties(IProperties):
         properties = self.get_all_properties()
         if name in properties:
             return properties[name]
-        else:
-            log.warning(
-                "Property {} is not among Job properties, returning default value: {}".format(
-                    name, default_value
-                )
-            )
-            return default_value
+        log.warning(
+            f"Property {name} is not among Job properties, returning default value: {default_value}"
+        )
+        return default_value
 
     def get_all_properties(self) -> Dict[str, PropertyValue]:
         """
@@ -89,7 +86,7 @@ class DataJobsServiceProperties(IProperties):
                         why_it_happened=f"User Error occurred. Exception was: {e}",
                         consequences="PROPERTIES_WRITE_PREPROCESS_SEQUENCE was interrupted, and "
                         "properties won't be written by the PROPERTIES_DEFAULT_TYPE client.",
-                        countermeasures=f"Handle the exception raised.",
+                        countermeasures="Handle the exception raised.",
                     )
 
         for k, v in list(properties.items()):

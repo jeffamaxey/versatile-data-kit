@@ -133,7 +133,7 @@ class JobCreate:
         if not os.path.isdir(path):
             raise VDKException(
                 what=f"Cannot create job at passed as argument path (job directory): {path} ",
-                why=f"The directory does not exist.",
+                why="The directory does not exist.",
                 consequence="Cannot create the data job as it's used to place inside the data job directory.",
                 countermeasure="Create the missing directories "
                 "OR change --path location "
@@ -144,7 +144,7 @@ class JobCreate:
         if os.path.exists(job_path):
             raise VDKException(
                 what=f"Cannot create job at given job path: {job_path}",
-                why=f"Target job directory already exists.",
+                why="Target job directory already exists.",
                 consequence="Cannot create the new job.",
                 countermeasure="Delete/move directory or change --path location",
             )
@@ -172,9 +172,7 @@ class JobCreate:
         name_without_dashes_or_nums = "".join(
             [char if char.isalpha() else "" for char in name_without_dashes]
         )
-        if not all(
-            [char.islower() for char in name_without_dashes_or_nums]
-        ):  # check if all symbols are lowercase
+        if not all(char.islower() for char in name_without_dashes_or_nums):  # check if all symbols are lowercase
             raise VDKException(
                 what=f"Cannot create job with name: {job_name}.",
                 why="Job name must only contain lowercase symbols.",
@@ -302,7 +300,6 @@ def create(
         cmd.validate_job_path(path, name)
 
     cmd.create_job(name, team, path, cloud, local)
-    pass
 
 
 def __determine_cloud_local_flags(

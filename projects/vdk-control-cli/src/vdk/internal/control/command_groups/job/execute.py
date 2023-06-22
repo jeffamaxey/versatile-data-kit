@@ -61,10 +61,7 @@ class JobExecute:
     @staticmethod
     def __validate_and_parse_args(arguments: str) -> str:
         try:
-            if arguments:
-                return json.loads(arguments)
-            else:
-                return {}
+            return json.loads(arguments) if arguments else {}
         except Exception as e:
             vdk_ex = VDKException(
                 what="Failed to validate job arguments.",
@@ -79,7 +76,7 @@ class JobExecute:
         self, name: str, team: str, output_format: OutputFormat, arguments: str
     ) -> None:
         execution_request = DataJobExecutionRequest(
-            started_by=f"manual/vdk-control-cli",
+            started_by="manual/vdk-control-cli",
             args=self.__validate_and_parse_args(arguments),
         )
         log.debug(f"Starting job with request {execution_request}")
@@ -138,25 +135,23 @@ class JobExecute:
     def __get_execution_to_log(
         self, name: str, team: str, execution_id: str
     ) -> Optional[DataJobExecution]:
-        if not execution_id:
-            executions: list[
-                DataJobExecution
-            ] = self.__execution_api.data_job_execution_list(
-                team_name=team, job_name=name
-            )
-            if not executions:
-                return None
-            log.info(
-                "No execution id has been passed as argument. "
-                "We will print the logs of the last started execution."
-            )
-            executions.sort(key=operator.attrgetter("start_time"), reverse=True)
-            execution = executions[0]
-        else:
-            execution: DataJobExecution = self.__execution_api.data_job_execution_read(
+        if execution_id:
+            return self.__execution_api.data_job_execution_read(
                 team_name=team, job_name=name, execution_id=execution_id
             )
-        return execution
+        executions: list[
+            DataJobExecution
+        ] = self.__execution_api.data_job_execution_list(
+            team_name=team, job_name=name
+        )
+        if not executions:
+            return None
+        log.info(
+            "No execution id has been passed as argument. "
+            "We will print the logs of the last started execution."
+        )
+        executions.sort(key=operator.attrgetter("start_time"), reverse=True)
+        return executions[0]
 
     @ApiClientErrorDecorator()
     def logs(self, name: str, team: str, execution_id: str) -> None:
@@ -317,6 +312,5 @@ def execute(
         click.echo("Operation wait not implemented")
     else:
         click.echo(
-            f"No execute operation specified. "
-            f"Please specify one of: {['--' + str(op.value) for op in ExecuteOperation]}"
+            f"No execute operation specified. Please specify one of: {[f'--{str(op.value)}' for op in ExecuteOperation]}"
         )

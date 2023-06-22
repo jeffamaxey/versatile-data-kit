@@ -87,8 +87,9 @@ class ExecutionResult:
         if self.exception:
             return self.exception
         step_exceptions = map(lambda x: x.exception, self.steps_list)
-        step_exception = next(filter(lambda e: e is not None, step_exceptions), None)
-        if step_exception:
+        if step_exception := next(
+            filter(lambda e: e is not None, step_exceptions), None
+        ):
             return step_exception
         else:
             return PlatformServiceError(
@@ -107,10 +108,9 @@ class ExecutionResult:
             return self.blamee
         exception = self.get_exception_to_raise()
 
-        step_raising_exception = next(
+        if step_raising_exception := next(
             filter(lambda s: s.exception == exception, self.steps_list)
-        )
-        if step_raising_exception:
+        ):
             return step_raising_exception.blamee
         return find_whom_to_blame_from_exception(exception)
 
@@ -120,7 +120,7 @@ class ExecutionResult:
         data["start_time"] = self.start_time.isoformat()
         data["end_time"] = self.end_time.isoformat()
 
-        step_lists_of_dicts = list()
+        step_lists_of_dicts = []
         for step in self.steps_list:
             d = step.__dict__.copy()
             d["start_time"] = d["start_time"].isoformat()

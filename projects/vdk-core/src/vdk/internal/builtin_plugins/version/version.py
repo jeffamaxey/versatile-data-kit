@@ -50,9 +50,11 @@ def list_installed_plugins():
     """
     dist_plugin_pairs = []
     for dist in list(metadata.distributions()):
-        for ep in dist.entry_points:
-            if ep.group == GROUP_NAME:
-                dist_plugin_pairs.append((_dist_name(dist), ep.name))
+        dist_plugin_pairs.extend(
+            (_dist_name(dist), ep.name)
+            for ep in dist.entry_points
+            if ep.group == GROUP_NAME
+        )
     return dist_plugin_pairs
 
 
@@ -63,10 +65,10 @@ def list_installed_plugins_versions():
     dist_plugin_pairs = list_installed_plugins()
 
     plugin_list = [
-        plugin + " (from package " + dist + ", version " + get_version(dist) + ")"
+        f"{plugin} (from package {dist}, version {get_version(dist)})"
         for dist, plugin in dist_plugin_pairs
     ]
-    return "\n".join(plugin_list) if len(plugin_list) > 0 else "None"
+    return "\n".join(plugin_list) if plugin_list else "None"
 
 
 def get_version_info():
@@ -85,4 +87,3 @@ def version(ctx: click.Context):
     log.info(
         f"Versatile Data Kit (VDK){os.linesep}{get_version_info()}{os.linesep + '-' * 80}"
     )
-    pass

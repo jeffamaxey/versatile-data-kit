@@ -21,14 +21,13 @@ class TemplateArgumentsValidator:
         pass
 
     def get_validated_args(self, job_input: IJobInput, args: dict) -> dict:
-        args.update(self._validate_args(args))
+        args |= self._validate_args(args)
         args["_vdk_template_insert_partition_clause"] = ""
 
         impala_helper = ImpalaHelper(cast(JobInput, job_input).get_managed_connection())
         table_name = "`{target_schema}`.`{target_table}`".format(**args)
         table_description = impala_helper.get_table_description(table_name)
-        partitions = impala_helper.get_table_partitions(table_description)
-        if partitions:
+        if partitions := impala_helper.get_table_partitions(table_description):
             args[
                 "_vdk_template_insert_partition_clause"
             ] = impala_helper.get_insert_sql_partition_clause(partitions)

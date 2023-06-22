@@ -11,11 +11,11 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     payload_str = job_input.get_arguments()["payload"]
 
-    log.info("Trying to ingest payload: " + payload_str)
+    log.info(f"Trying to ingest payload: {payload_str}")
     payload = payload_str
-    if payload_str == "None":
+    if payload == "None":
         payload = None
-    elif payload_str == "date":
+    elif payload == "date":
         payload = {"key1": datetime.utcnow()}
 
     job_input.send_object_for_ingestion(

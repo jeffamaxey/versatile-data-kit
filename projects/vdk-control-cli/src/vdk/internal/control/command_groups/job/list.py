@@ -46,7 +46,7 @@ class JobList:
             )
             log.debug(f"Response: {response}")
             next_page: List[Dict] = response.data.content
-            if next_page and len(next_page) > 0:
+            if next_page:
                 jobs.extend(next_page)
             if len(next_page) < page_size:
                 has_more_jobs = False
@@ -62,8 +62,7 @@ class JobList:
             job_name=job["jobName"],
             job_team=job["config"]["team"],
         )
-        deployments = job.get("deployments", [])
-        if deployments:
+        if deployments := job.get("deployments", []):
             res["status"] = "ENABLED" if deployments[0]["enabled"] else "DISABLED"
             if (
                 "schedule" in job["config"]
@@ -162,7 +161,7 @@ class JobList:
             ).add("opId").add("startedBy")
 
         query = jobs_builder.build()
-        log.debug("Jobs list (graphql) query: " + query)
+        log.debug(f"Jobs list (graphql) query: {query}")
         return query
 
 
@@ -241,4 +240,3 @@ def list_command(
     cmd.list_jobs(
         team, (operation_all == FilterOperation.ALL.value), more_details, output
     )
-    pass

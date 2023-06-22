@@ -12,5 +12,4 @@ class DefaultOptions:
         self.plugins = plugins
 
     def get_default_map(self):
-        default_map = self.plugins.hook().get_default_commands_options()
-        return default_map
+        return self.plugins.hook().get_default_commands_options()

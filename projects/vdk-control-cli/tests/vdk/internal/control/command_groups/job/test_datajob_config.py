@@ -35,20 +35,17 @@ class TestSetTeam:
         )
 
     def test_set_team_with_no_team_in_config_ini(self):
-        # remove all contents of config.ini (including team option)
-        config_ini_file = open(self.tmp_copy_job_test_config_ini_path, "w")
-        config_ini_file.truncate(0)
-        config_ini_file.close()
-
+        with open(self.tmp_copy_job_test_config_ini_path, "w") as config_ini_file:
+            config_ini_file.truncate(0)
         job_config = JobConfig(self.tmp_copy_job_test_path)
 
         assert (
             not job_config.get_team()
-        ), f"empty config.ini file should not provide a team"
+        ), "empty config.ini file should not provide a team"
 
         assert not job_config.set_team_if_exists(
             "my unique team name"
-        ), f"set_team_if_exists was supposed to return False if there is no team option in config.ini"
+        ), "set_team_if_exists was supposed to return False if there is no team option in config.ini"
 
     def _perform_set_team_test(self, team_name, job_config):
         assert job_config.set_team_if_exists(

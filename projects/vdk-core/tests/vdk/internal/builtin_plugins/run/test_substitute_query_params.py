@@ -130,7 +130,7 @@ def test_substitute_empty_args():
         MagicMock(),
         MagicMock(),
         MagicMock(),
-        JobArguments(dict()),
+        JobArguments({}),
         MagicMock(),
         MagicMock(),
         MagicMock(),

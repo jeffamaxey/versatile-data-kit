@@ -15,11 +15,10 @@ class BrokenIterator:
         return self
 
     def __next__(self):
-        if self.n <= self._break_at_index:
-            self.n += 1
-            return [1, 2]
-        else:
+        if self.n > self._break_at_index:
             raise FloatingPointError("foo")
+        self.n += 1
+        return [1, 2]
 
 
 def run(job_input: IJobInput):

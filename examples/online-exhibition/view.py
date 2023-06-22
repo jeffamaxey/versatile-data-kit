@@ -20,7 +20,9 @@ conn = trino.dbapi.connect(
 
 st.markdown("# Van Gogh's Artworks")
 
-provider = pd.read_sql_query(f"SELECT DISTINCT(provider) FROM cleaned_assets", conn)
+provider = pd.read_sql_query(
+    "SELECT DISTINCT(provider) FROM cleaned_assets", conn
+)
 provider = st.selectbox("Select a Provider", provider["provider"], key="provider")
 
 df = pd.read_sql_query(

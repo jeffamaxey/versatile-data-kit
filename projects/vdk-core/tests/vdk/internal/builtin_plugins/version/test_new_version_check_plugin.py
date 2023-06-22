@@ -21,14 +21,12 @@ def build_configuration(plugin, config: Dict):
     plugin.vdk_configure(config_builder=conf_builder)
     for k, v in config.items():
         conf_builder.set_value(k, v)
-    configuration = conf_builder.build()
-    return configuration
+    return conf_builder.build()
 
 
 def build_core_context(plugin, config: Dict):
     conf = build_configuration(plugin, config)
-    context = CoreContext(MagicMock(spec=IPluginRegistry), conf, StateStore())
-    return context
+    return CoreContext(MagicMock(spec=IPluginRegistry), conf, StateStore())
 
 
 @patch(f"{new_package.__module__}.{new_package.__name__}", autospec=True)
@@ -36,7 +34,7 @@ def build_core_context(plugin, config: Dict):
     f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
     autospec=True,
 )
-@patch(f"click.echo", autospec=True)
+@patch("click.echo", autospec=True)
 def test_no_new_version_check(mock_click_echo, mock_list, mock_package):
     mock_package.return_value.check.return_value = False
     mock_list.return_value = [("dist", "plugin")]
@@ -66,7 +64,7 @@ def test_no_new_version_check(mock_click_echo, mock_list, mock_package):
     f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
     autospec=True,
 )
-@patch(f"click.echo", autospec=True)
+@patch("click.echo", autospec=True)
 def test_new_version_check(mock_click_echo, mock_list, mock_package):
     mock_list.return_value = [("dist", "plugin")]
 
@@ -118,7 +116,7 @@ def test_new_version_check_skip_plugins(mock_list, mock_package):
     f"{version.list_installed_plugins.__module__}.{version.list_installed_plugins.__name__}",
     autospec=True,
 )
-@patch(f"click.echo", autospec=True)
+@patch("click.echo", autospec=True)
 def test_new_version_check_empty_package_index(
     mock_click_echo, mock_list, mock_package
 ):

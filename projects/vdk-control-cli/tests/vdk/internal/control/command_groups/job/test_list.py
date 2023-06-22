@@ -156,10 +156,10 @@ def test_list_all(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     response = get_data_job_query_response(
         [
             {
-                "jobName": f"test-job-1",
+                "jobName": "test-job-1",
                 "config": {
                     "team": "test-team",
-                    "description": f"test-job-1 description",
+                    "description": "test-job-1 description",
                 },
                 "deployments": [],
             }

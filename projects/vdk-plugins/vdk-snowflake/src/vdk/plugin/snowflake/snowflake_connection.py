@@ -101,5 +101,4 @@ class SnowflakeConnection(ManagedConnectionBase):
         reraise=True,
     )
     def execute_query_with_retries(self, query) -> List[List[Any]]:
-        res = super().execute_query(query)
-        return res
+        return super().execute_query(query)

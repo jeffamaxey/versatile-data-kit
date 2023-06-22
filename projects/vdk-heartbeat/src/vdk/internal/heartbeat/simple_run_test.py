@@ -40,7 +40,7 @@ class SimpleRunTest(HeartbeatTest):
         start_time = time.time()
         caught_exception = None
         while time.time() - start_time < self.config.RUN_TEST_TIMEOUT_SECONDS:
-            log.info(f"Search for job property to set 'succeeded' property.")
+            log.info("Search for job property to set 'succeeded' property.")
             try:
                 props = self.__job_controller.get_job_properties()
                 if props and "succeeded" in props:
@@ -56,8 +56,7 @@ class SimpleRunTest(HeartbeatTest):
             except Exception as e:
                 caught_exception = e
                 log.info(
-                    f"Error while querying for results. Waiting {wait_time_seconds} seconds before trying again. "
-                    f"Error was {e}"
+                    f"Error while querying for results. Waiting {wait_time_seconds} seconds before trying again. Error was {caught_exception}"
                 )
                 time.sleep(wait_time_seconds)
         if caught_exception:

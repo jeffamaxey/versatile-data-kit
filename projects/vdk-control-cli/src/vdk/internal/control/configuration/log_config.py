@@ -49,9 +49,7 @@ def configure_loggers(
         "stream": "ext://sys.stderr",
     }
 
-    if "NONE" == log_config_type:
-        pass
-    else:
+    if log_config_type != "NONE":
         LOCAL = {  # @UnusedVariable
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER},
@@ -68,5 +66,4 @@ def set_already_configured():
 
 
 def is_already_configured():
-    res = hasattr(modules[__name__], "logging_already_configured")
-    return res
+    return hasattr(modules[__name__], "logging_already_configured")

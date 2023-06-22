@@ -50,7 +50,7 @@ class DataJobsServicePropertiesTest(unittest.TestCase):
         self.data_jobs_service_props.set_all_properties({"key": "unicode"})
         self.data_jobs_service_props.set_all_properties({"key": r"raw"})
         self.data_jobs_service_props.set_all_properties({"key": None})
-        self.data_jobs_service_props.set_all_properties({"key": dict()})
+        self.data_jobs_service_props.set_all_properties({"key": {}})
 
     def test_data_jobs_service_properties(self):
         self.assertEqual(
@@ -63,12 +63,10 @@ class DataJobsServicePropertiesTest(unittest.TestCase):
             "default value",
         )
 
-        self.data_jobs_service_props.set_all_properties(
-            {"key1": "value1", "key2": dict()}
-        )
+        self.data_jobs_service_props.set_all_properties({"key1": "value1", "key2": {}})
         self.assertEqual(self.data_jobs_service_props.get_property("key1"), "value1")
-        self.assertEqual(self.data_jobs_service_props.get_property("key2"), dict())
+        self.assertEqual(self.data_jobs_service_props.get_property("key2"), {})
         self.assertEqual(
             self.data_jobs_service_props.get_all_properties(),
-            {"key1": "value1", "key2": dict()},
+            {"key1": "value1", "key2": {}},
         )

@@ -83,11 +83,11 @@ def kerberos_service(docker_ip: str, docker_services: Services):
 
     caller_directory = get_caller_directory()
     with mock.patch.dict(
-        os.environ,
-        {
-            "KRB5_CONFIG": str(caller_directory.joinpath("krb5.conf")),
-        },
-    ):
+            os.environ,
+            {
+                "KRB5_CONFIG": str(caller_directory.joinpath("krb5.conf")),
+            },
+        ):
         try:
             docker_services.wait_until_responsive(
                 timeout=10.0, pause=0.3, check=_is_responsive_noexcept
@@ -113,7 +113,7 @@ def kerberos_service(docker_ip: str, docker_services: Services):
         keytab_filename2 = Path("jobs").joinpath("different_principal.keytab")
         if os.path.isfile(caller_directory.joinpath(keytab_filename2)):
             os.remove(caller_directory.joinpath(keytab_filename2))
-        result = _run_kadmin_query(f"add_principal -randkey different_principal")
+        result = _run_kadmin_query("add_principal -randkey different_principal")
         assert result == 0, "(kadmin) failed to create principal"
         result = _run_kadmin_query(
             f"ktadd -k {keytab_filename2} different_principal@{krb5_realm}"

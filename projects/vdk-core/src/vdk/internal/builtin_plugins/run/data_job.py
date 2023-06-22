@@ -64,14 +64,14 @@ class DataJobDefaultHookImplPlugin:
     @hookimpl(trylast=True)
     def run_step(context: JobContext, step: Step) -> StepResult:
         start_time = datetime.utcnow()
-        exception = None
         details = None
         blamee = None
 
+        exception = None
         try:
             log.debug(f"Processing step {step.name} ...")
             step_executed = step.runner_func(step, context.job_input)
-            log.debug("Processing step %s completed successfully" % step.name)
+            log.debug(f"Processing step {step.name} completed successfully")
             status = (
                 ExecutionStatus.SUCCESS
                 if step_executed
@@ -81,8 +81,7 @@ class DataJobDefaultHookImplPlugin:
             status = ExecutionStatus.SKIP_REQUESTED
             details = errors.MSG_WHY_FROM_EXCEPTION(e)
             log.debug(
-                f"Job execution skipped from step: {step.name}. Because skip_remaining_steps() method "
-                + "was invoked"
+                f"Job execution skipped from step: {step.name}. Because skip_remaining_steps() method was invoked"
             )
         except Exception as e:
             status = ExecutionStatus.ERROR
@@ -93,14 +92,13 @@ class DataJobDefaultHookImplPlugin:
                 blamee,
                 log,
                 what_happened=f"Processing step {step.name} completed with error.",
-                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
+                why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(exception),
                 consequences="I will not process the remaining steps (if any), "
                 "and this Data Job execution will be marked as failed.",
                 countermeasures="See exception and fix the root cause, so that the exception does "
                 "not appear anymore.",
-                exception=e,
+                exception=exception,
             )
-
         return StepResult(
             name=step.name,
             type=step.type,
@@ -175,7 +173,7 @@ class DataJobDefaultHookImplPlugin:
                 # We keep the status as Success, but we skip all remaining steps
                 break
 
-        execution_result = ExecutionResult(
+        return ExecutionResult(
             context.name,
             context.core_context.state.get(CommonStoreKeys.EXECUTION_ID),
             start_time,
@@ -185,7 +183,6 @@ class DataJobDefaultHookImplPlugin:
             exception,
             blamee,
         )
-        return execution_result
 
     @staticmethod
     @hookimpl
@@ -220,7 +217,7 @@ class DataJobDefaultHookImplPlugin:
                     job_dir=context.job_directory,
                 )
             else:
-                log.info("Skipping file as it is not a valid job step: %s" % file_path)
+                log.info(f"Skipping file as it is not a valid job step: {file_path}")
                 continue
             context.step_builder.add_step(step)
 
@@ -323,7 +320,7 @@ class DataJob:
                 "not appear anymore.",
                 exception=ex,
             )
-            execution_result = ExecutionResult(
+            return ExecutionResult(
                 self._name,
                 self._core_context.state.get(CommonStoreKeys.EXECUTION_ID),
                 start_time,
@@ -333,7 +330,5 @@ class DataJob:
                 ex,
                 blamee,
             )
-            return execution_result
-
         finally:  # TODO: we should pass execution result to finalize_job somehow ...
             self._plugin_hook.finalize_job(context=job_context)

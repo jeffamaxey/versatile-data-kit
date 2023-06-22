@@ -8,9 +8,9 @@ log = logging.getLogger(__name__)
 
 
 def run(job_input: IJobInput):
-    log.info(f"Get current properties ")
+    log.info("Get current properties ")
     props = job_input.get_all_properties()
     props["succeeded"] = "true"
-    log.info(f"Save new properties ")
+    log.info("Save new properties ")
     job_input.set_all_properties(props)
     log.info(f"Updated property now to {props['succeeded']}")

@@ -78,7 +78,7 @@ def _prepare_execution_result(error, step_error, blamee=None):
         step_error,
         errors.ResolvableBy.USER_ERROR,
     )
-    result = ExecutionResult(
+    return ExecutionResult(
         "job-name",
         "exec-id",
         datetime.fromisoformat("2012-10-12 00:00:00"),
@@ -88,7 +88,6 @@ def _prepare_execution_result(error, step_error, blamee=None):
         error,
         blamee,
     )
-    return result
 
 
 def test_serialization_non_serializable():

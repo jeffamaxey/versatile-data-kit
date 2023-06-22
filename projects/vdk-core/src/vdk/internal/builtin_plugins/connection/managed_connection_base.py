@@ -45,10 +45,7 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         """
         this constructor MUST be called by inheritors
         """
-        if log:
-            self._log = log
-        else:
-            self._log = logging.getLogger(__name__)
+        self._log = log if log else logging.getLogger(__name__)
         self._is_db_con_open: bool = db_con is not None
         self._db_con: Optional[PEP249Connection] = db_con
         self._connection_hook_spec_factory = connection_hook_spec_factory
@@ -134,11 +131,11 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
                 res = cur.fetchall()
             except Exception as e:
                 res = None
-                if str(e) in (
-                    "No results.  Previous SQL was not a query.",  # message in pyodbc
-                    "Trying to fetch results on an operation with no results.",  # message in impyla
-                    "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
-                ):
+                if str(e) in {
+                    "No results.  Previous SQL was not a query.",
+                    "Trying to fetch results on an operation with no results.",
+                    "no results to fetch",
+                }:
                     self._log.debug(
                         "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."
                     )
@@ -242,14 +239,12 @@ class ManagedConnectionBase(PEP249Connection, IManagedConnection):
         self.close()
 
     def __str__(self) -> str:
-        return "ManagedConnection[ isConnected:{} {} ]".format(
-            self._is_db_con_open, self._db_con
-        )
+        return f"ManagedConnection[ isConnected:{self._is_db_con_open} {self._db_con} ]"
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, PEP249Connection):
             return False
-        return self._db_con == o or self._db_con == o._db_con
+        return self._db_con in [o, o._db_con]
 
     def __hash__(self) -> int:
         return hash(self._db_con)

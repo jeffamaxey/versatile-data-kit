@@ -144,8 +144,7 @@ def vdk_command_line(root_command: click.Group):
 
 def get_jobs_parent_directory() -> pathlib.Path:
     current_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
-    jobs_dir = current_dir.joinpath("templates")
-    return jobs_dir
+    return current_dir.joinpath("templates")
 
 
 def get_job_path(job_name: str) -> str:

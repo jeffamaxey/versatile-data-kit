@@ -79,7 +79,7 @@ def test_calling_get_initialise_job_input_multiple_times(ip, tmpdir):
 # uses the pytest tmpdir fixture - https://docs.pytest.org/en/6.2.x/tmpdir.html#the-tmpdir-fixture
 async def test_extension_with_ingestion_job(ip, tmpdir):
     # set environmental variables via Jupyter notebook
-    job_dir = str(tmpdir) + "vdk-sqlite.db"
+    job_dir = f"{str(tmpdir)}vdk-sqlite.db"
     ip.get_ipython().run_cell("%env VDK_INGEST_METHOD_DEFAULT=sqlite")
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")
@@ -144,7 +144,7 @@ async def test_extension_with_ingestion_job(ip, tmpdir):
 
 def test_extension_with_pure_sql_job(ip, tmpdir):
     # set environmental variables via Jupyter notebook
-    job_dir = str(tmpdir) + "vdk-sqlite.db"
+    job_dir = f"{str(tmpdir)}vdk-sqlite.db"
     ip.get_ipython().run_cell("%env VDK_INGEST_METHOD_DEFAULT=sqlite")
     ip.get_ipython().run_cell(f"%env VDK_SQLITE_FILE={job_dir}")
     ip.get_ipython().run_cell("%env VDK_DB_DEFAULT_TYPE=SQLITE")

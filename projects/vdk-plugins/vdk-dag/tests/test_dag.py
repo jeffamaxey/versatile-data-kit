@@ -27,7 +27,7 @@ def json_serial(obj):
 
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
+    raise TypeError(f"Type {type(obj)} not serializable")
 
 
 class DummyDAGPluginConfiguration:
@@ -62,9 +62,9 @@ class TestDAG:
         rest_api_url = self.httpserver.url_for("")
         team_name = "team-awesome"
         if self.jobs is None:
-            self.jobs = [("job" + str(i), [200], "succeeded", 0) for i in range(1, 5)]
+            self.jobs = [(f"job{str(i)}", [200], "succeeded", 0) for i in range(1, 5)]
 
-        started_jobs = dict()
+        started_jobs = {}
 
         for job_name, request_responses, job_status, *execution_duration in self.jobs:
             request_responses.reverse()
@@ -103,7 +103,7 @@ class TestDAG:
                         start_time="2021-09-24T14:14:03.922Z",
                         status=actual_job_status,
                         message="foo",
-                        started_by="manual/" + dag_name,
+                        started_by=f"manual/{dag_name}",
                     )
                     response_data = json.dumps(
                         execution.to_dict(), indent=4, default=json_serial
@@ -144,7 +144,7 @@ class TestDAG:
                         start_time="2021-09-24T14:14:03.922Z",
                         status="succeeded",
                         message="foo",
-                        started_by="manual/" + dag_name,
+                        started_by=f"manual/{dag_name}",
                     )
                     response_data = json.dumps(
                         execution.to_dict(), indent=4, default=json_serial
@@ -173,7 +173,7 @@ class TestDAG:
                         start_time="2021-09-24T14:14:03.922Z",
                         status="succeeded",
                         message="foo",
-                        started_by="manual/" + dag_name,
+                        started_by=f"manual/{dag_name}",
                     )
                     response_data = json.dumps(
                         [execution.to_dict()], indent=4, default=json_serial
@@ -201,7 +201,7 @@ class TestDAG:
         self.api_url = self._prepare(dag_name)
         self.env_vars = {"VDK_CONTROL_SERVICE_REST_API_URL": self.api_url}
         if additional_env_vars is not None:
-            self.env_vars.update(additional_env_vars)
+            self.env_vars |= additional_env_vars
 
     def _run_dag(self, dag_name):
         with mock.patch.dict(
@@ -361,7 +361,7 @@ class TestDAG:
             self.httpserver.stop()
 
     def test_dag_concurrent_running_jobs_limit(self):
-        jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
+        jobs = [(f"job{str(i)}", [200], "succeeded", 1) for i in range(1, 8)]
         dag = "dag-exceed-limit"
 
         dummy_config.dags_max_concurrent_running_jobs_value = 2
@@ -378,9 +378,9 @@ class TestDAG:
 
         self._set_up(jobs, env_vars, dag)
         with mock.patch.dict(
-            os.environ,
-            self.env_vars,
-        ):
+                os.environ,
+                self.env_vars,
+            ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag(dag)
             expected_max_running_jobs = int(
@@ -390,30 +390,30 @@ class TestDAG:
             running_jobs = set()
             for request, response in self.httpserver.log:
                 if "executions" in request.path:
-                    if request.method == "POST":
-                        job_name = request.path.split("/jobs/")[1].split("/")[0]
-                        running_jobs.add(job_name)
-                        assert (
-                            len(running_jobs) <= expected_max_running_jobs
-                        )  # assert that max concurrent running jobs is not exceeded
                     if request.method == "GET":
                         execution = json.loads(response.response[0])
                         if isinstance(execution, list):
                             execution = execution[0]
                         if execution["status"] == "succeeded":
                             running_jobs.discard(execution["job_name"])
+                    elif request.method == "POST":
+                        job_name = request.path.split("/jobs/")[1].split("/")[0]
+                        running_jobs.add(job_name)
+                        assert (
+                            len(running_jobs) <= expected_max_running_jobs
+                        )  # assert that max concurrent running jobs is not exceeded
             cli_assert_equal(0, result)
             # assert that all the jobs finished successfully
-            assert len(running_jobs) == 0
+            assert not running_jobs
             self.httpserver.stop()
 
     def test_dag_execution_type_propagation(self):
         dag = "dag"
         self._set_up(dag_name=dag)
         with mock.patch.dict(
-            os.environ,
-            self.env_vars,
-        ):
+                os.environ,
+                self.env_vars,
+            ):
             self.runner = CliEntryBasedTestRunner(dag_plugin)
             result = self._run_dag(dag)
             for request, response in self.httpserver.log:
@@ -422,7 +422,7 @@ class TestDAG:
                         execution = json.loads(response.response[0])
                         if isinstance(execution, list):
                             execution = execution[0]
-                        assert execution["started_by"] == "manual/" + dag
+                        assert execution["started_by"] == f"manual/{dag}"
             cli_assert_equal(0, result)
             self.httpserver.stop()
 

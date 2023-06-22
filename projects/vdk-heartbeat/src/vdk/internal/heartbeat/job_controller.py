@@ -69,12 +69,10 @@ class JobController:
         full_command = base_command + command
         log.debug(f"Command: {full_command}")
         try:
-            os.environ.update(
-                {
-                    "VDK_OP_ID": self.config.op_id,
-                    "VDK_OP_ID_OVERRIDE": self.config.op_id,
-                }
-            )
+            os.environ |= {
+                "VDK_OP_ID": self.config.op_id,
+                "VDK_OP_ID_OVERRIDE": self.config.op_id,
+            }
             out = subprocess.check_output(full_command)
             log.debug(f"out: {out}")
             return out
@@ -384,11 +382,9 @@ class JobController:
             for e in execution_list
         ]
 
-        # latest status, where end_time is yet about to be populated
-        status_end_datetime_none_list = [
+        if status_end_datetime_none_list := [
             e[1] for e in end_datetime_status_tuples if e[0] is None
-        ]
-        if status_end_datetime_none_list:
+        ]:
             return status_end_datetime_none_list.pop()
 
         # latest status by datetime, since no unpopulated end_time

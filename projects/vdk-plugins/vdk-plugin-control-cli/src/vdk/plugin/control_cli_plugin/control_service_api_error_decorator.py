@@ -39,9 +39,8 @@ class ConstrolServiceApiErrorDecorator:
                 f"We failed to parse API exception body as JSON due to {jsonException}. "
                 f"Will fallback to use generic template for error message."
             )
-            error = {}
             if exception.status == 401:
-                error = dict(
+                return dict(
                     what=self.__what,
                     why=f"The request has not been applied because it lacks valid authentication credentials. "
                     f"Error returned by control service is {exception.body}",
@@ -53,7 +52,7 @@ class ConstrolServiceApiErrorDecorator:
                     "And if all fails try to contact the support team.",
                 )
             elif exception.status == 404:
-                error = dict(
+                return dict(
                     what=self.__what,
                     why="The requested resource cannot be found. "
                     "You may have a spelling mistake or the data job has not been created",
@@ -63,7 +62,8 @@ class ConstrolServiceApiErrorDecorator:
                     "Make sure you have run `vdk create --cloud` before doing this operation on a data job.",
                 )
             else:
-                error = dict(
+                error = {}
+                return dict(
                     what=error.get("what", self.__what),
                     why=error.get(
                         "why",
@@ -75,8 +75,6 @@ class ConstrolServiceApiErrorDecorator:
                         "See error and try to resolve it or open ticket to SRE team.",
                     ),
                 )
-
-            return error
 
     def __call__(self, fn):
         @functools.wraps(fn)

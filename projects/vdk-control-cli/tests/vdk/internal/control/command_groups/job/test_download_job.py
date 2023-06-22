@@ -15,8 +15,7 @@ test_utils.disable_vdk_authentication()
 
 def _read_file(file_path):
     with open(file_path, "rb") as job_archive_file:
-        file_path_binary = job_archive_file.read()
-        return file_path_binary
+        return job_archive_file.read()
 
 
 def test_download_source(httpserver: PluginHTTPServer, tmpdir: LocalPath):

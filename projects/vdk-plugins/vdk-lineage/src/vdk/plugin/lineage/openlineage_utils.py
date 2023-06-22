@@ -30,7 +30,7 @@ class VdkJobFacet(BaseFacet):
 
     @staticmethod
     def _get_schema() -> str:
-        return SCHEMA_URI + "#/definitions/VdkJobFacet"
+        return f"{SCHEMA_URI}#/definitions/VdkJobFacet"
 
 
 def setup_client(url: str, api_key: str = None) -> Optional[OpenLineageClient]:

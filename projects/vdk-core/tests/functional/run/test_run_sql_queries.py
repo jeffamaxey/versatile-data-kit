@@ -40,10 +40,7 @@ class ValidatedSqLite3MemoryDbPlugin:
 
     @hookimpl(trylast=True)
     def db_connection_validate_operation(self, operation, parameters):
-        parameters_length = 0
-        if parameters:
-            parameters_length = len("".join(map(str, parameters)))
-
+        parameters_length = len("".join(map(str, parameters))) if parameters else 0
         if len(operation) + parameters_length > 10000:
             raise Exception(
                 "Database operation has exceeded the maximum limit of 10000 characters."
@@ -141,10 +138,11 @@ def test_run_managed_connection_and_check_query_comments():
     assert len(db_plugin.statements_history) == 3
     # assert those are automatically added as comments
     assert all(
-        ["-- op_id" in statement for statement in db_plugin.statements_history]
+        "-- op_id" in statement for statement in db_plugin.statements_history
     ), f"op_id missing: {db_plugin.statements_history}"
     assert all(
-        ["-- job_name" in statement for statement in db_plugin.statements_history]
+        "-- job_name" in statement
+        for statement in db_plugin.statements_history
     ), f"job name missing: {db_plugin.statements_history}"
 
 

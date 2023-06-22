@@ -17,8 +17,7 @@ log = logging.getLogger(__name__)
 @hookimpl
 def initialize_job(context: JobContext) -> None:
     conf = ControlServiceConfiguration(context.core_context.configuration)
-    url = conf.control_service_rest_api_url()
-    if url:
+    if url := conf.control_service_rest_api_url():
         log.info("Initialize Control Service based Properties client implementation.")
         context.properties.set_properties_factory_method(
             "default", lambda: ControlServicePropertiesServiceClient(url)

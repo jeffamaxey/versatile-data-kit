@@ -457,8 +457,6 @@ def find_whom_to_blame_from_exception(exception: Exception) -> ResolvableBy:
         return (
             ResolvableBy.CONFIG_ERROR
         )  # TODO find out if this is a local or platform deployment and fix this line.
-    if issubclass(type(exception), PlatformServiceError):
-        return ResolvableBy.PLATFORM_ERROR
     return ResolvableBy.PLATFORM_ERROR
 
 
@@ -513,9 +511,7 @@ def MSG_WHY_FROM_EXCEPTION(exception: Exception) -> str:
     return (
         custom_message
         if custom_message
-        else "An exception occurred, exception message was: {}".format(
-            _get_exception_message(exception)
-        )
+        else f"An exception occurred, exception message was: {_get_exception_message(exception)}"
     )
 
 
@@ -537,7 +533,7 @@ def exception_matches(
     if None is match:
         return False
     grp = match.group()
-    if not (grp == classname):
+    if grp != classname:
         return False
 
     msg = _get_exception_message(e)
@@ -565,9 +561,7 @@ def __build_message_for_end_user(
         error = " configuration error "
 
     return ErrorMessage(
-        "A{} occurred. The error should be resolved by {}. Here are the details:".format(
-            error, to_be_fixed_by_actual
-        ),
+        f"A{error} occurred. The error should be resolved by {to_be_fixed_by_actual}. Here are the details:",
         what_happened.strip(),
         why_it_happened.strip(),
         consequences.strip(),
@@ -588,7 +582,7 @@ def __get_caller_stacktrace(exception: BaseException = None) -> str:
     lst = ["Traceback (most recent call first):\n"]
     fstack = traceback.extract_stack(f)
     fstack.reverse()
-    lst = lst + traceback.format_list(fstack)
+    lst += traceback.format_list(fstack)
     lines = ""
     for line in lst:
         lines = lines + line

@@ -23,12 +23,12 @@ def set_defaults_for_specific_command(
         errors.log_and_throw(
             to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
             log=log,
-            what_happened=f"Cannot set default parameters when root_command isn't of type click.Group",
-            why_it_happened=f"A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
+            what_happened="Cannot set default parameters when root_command isn't of type click.Group",
+            why_it_happened="A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
             consequences="Cannot continue with execution",
-            countermeasures=f"Fix or uninstall buggy plugin",
+            countermeasures="Fix or uninstall buggy plugin",
         )
-    if len(defaults_dict) == 0:
+    if not defaults_dict:
         log.debug("defaults_dict is empty, please provide default parameter values")
 
     command = root_command.get_command(None, target_command)
@@ -42,10 +42,10 @@ def set_defaults_for_specific_command(
             countermeasures=f"Fix or uninstall plugin which sets command: {target_command}",
         )
     for param in command.params:
-        if param.name in defaults_dict.keys():
+        if param.name in defaults_dict:
             param.default = defaults_dict.pop(param.name)
 
-    if len(defaults_dict) > 0:
+    if defaults_dict:
         log.debug(
             "Did not find the following parameters: ", set(defaults_dict.keys())
         )  # TODO: maybe raise an exception?
@@ -64,12 +64,12 @@ def set_defaults_for_all_commands(
         errors.log_and_throw(
             to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
             log=log,
-            what_happened=f"Cannot set default parameters when root_command isn't of type click.Group",
-            why_it_happened=f"A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
+            what_happened="Cannot set default parameters when root_command isn't of type click.Group",
+            why_it_happened="A plugin which attempted to set default parameters was not given a root_command object of type click.Group",
             consequences="Cannot continue with execution",
-            countermeasures=f"Fix or uninstall buggy plugin",
+            countermeasures="Fix or uninstall buggy plugin",
         )
-    if len(defaults_dict) == 0:
+    if not defaults_dict:
         log.debug("defaults_dict is empty, please provide default parameter values")
 
     params_to_be_specified = set(defaults_dict.keys())
@@ -77,7 +77,7 @@ def set_defaults_for_all_commands(
     for command_name in root_command.list_commands(None):
         command = root_command.get_command(None, command_name)
         for param in command.params:
-            if param.name in defaults_dict.keys():
+            if param.name in defaults_dict:
                 param.default = defaults_dict[param.name]
                 discovered_params.add(param.name)
 

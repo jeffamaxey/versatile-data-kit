@@ -259,8 +259,7 @@ class RedirectAuthentication:
         self.oauth2_exchange_url = oauth2_exchange_url
         self.auth = auth
 
-        env_port = os.getenv("OAUTH2_REDIRECT_URI_PORT", default=None)
-        if env_port:
+        if env_port := os.getenv("OAUTH2_REDIRECT_URI_PORT", default=None):
             self.port = int(env_port)
         elif redirect_uri_default_port is not None:
             self.port = redirect_uri_default_port
@@ -284,20 +283,20 @@ class RedirectAuthentication:
     def _redirect(self, discovery_endpoint: str, handler, login_handler: LoginHandler):
         with HTTPServer(("", self.port), handler) as server:
             print(f"Opening browser at:\n{discovery_endpoint}")
-            is_open = webbrowser.open(discovery_endpoint)
-            if not is_open:
-                print(
-                    "We failed to open the browser automatically and will proceed to login manually.\n"
-                    "Please, follow below instructions:"
-                )
-                self._manual_login(discovery_endpoint, login_handler)
-            else:  # TODO: that's not very good UX, let's timeout after 1 minute
+            if is_open := webbrowser.open(discovery_endpoint):
                 print(
                     "Press [Ctrl + C]/[Command + C] to quit in case of error in the browser."
                 )
                 server.handle_request()
                 if login_handler.login_exception:
                     raise login_handler.login_exception
+
+            else:
+                print(
+                    "We failed to open the browser automatically and will proceed to login manually.\n"
+                    "Please, follow below instructions:"
+                )
+                self._manual_login(discovery_endpoint, login_handler)
 
     @staticmethod
     def _create_redirect_handler(login_handler: LoginHandler):
@@ -315,23 +314,22 @@ class RedirectAuthentication:
 
     def _create_authorization_redirect_url(self):
         oauth = OAuth2Session(client_id=self.client_id, redirect_uri=self.redirect_uri)
-        if not self.client_secret:
-            log.debug(
-                "No client secret specified. We assume native app workflow with PKCE (RFC 7636)."
-            )
-            return oauth.authorization_url(
-                self.oauth2_discovery_url,
-                state=AuthRequestValues.STATE_PARAMETER_VALUE.value,
-                prompt=AuthRequestValues.LOGIN_PROMPT.value,
-                code_challenge=self.code_challenge,
-                code_challenge_method=self.code_challenge_method,
-            )
-        else:
+        if self.client_secret:
             return oauth.authorization_url(
                 self.oauth2_discovery_url,
                 state=AuthRequestValues.STATE_PARAMETER_VALUE.value,
                 prompt=AuthRequestValues.LOGIN_PROMPT.value,
             )
+        log.debug(
+            "No client secret specified. We assume native app workflow with PKCE (RFC 7636)."
+        )
+        return oauth.authorization_url(
+            self.oauth2_discovery_url,
+            state=AuthRequestValues.STATE_PARAMETER_VALUE.value,
+            prompt=AuthRequestValues.LOGIN_PROMPT.value,
+            code_challenge=self.code_challenge,
+            code_challenge_method=self.code_challenge_method,
+        )
 
     @staticmethod
     def find_free_port():

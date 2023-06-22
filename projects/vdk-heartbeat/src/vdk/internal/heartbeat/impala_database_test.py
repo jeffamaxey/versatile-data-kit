@@ -81,11 +81,11 @@ class ImpalaDatabaseHeartbeatTest(HeartbeatTest):
                 res = cursor.fetchall()
             except Exception as pe:
                 res = None
-                if str(pe) in (
-                    "No results.  Previous SQL was not a query.",  # message in pyodbc
-                    "Trying to fetch results on an operation with no results.",  # message in impyla
-                    "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
-                ):
+                if str(pe) in {
+                    "No results.  Previous SQL was not a query.",
+                    "Trying to fetch results on an operation with no results.",
+                    "no results to fetch",
+                }:
                     log.debug(
                         "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."
                     )
@@ -100,7 +100,7 @@ class ImpalaDatabaseHeartbeatTest(HeartbeatTest):
     ):
         from impala.dbapi import connect
 
-        con = connect(
+        return connect(
             host=the_host,
             port=the_port,
             use_ssl=ssl,
@@ -109,7 +109,6 @@ class ImpalaDatabaseHeartbeatTest(HeartbeatTest):
             password=the_password,
             timeout=timeout_seconds,
         )
-        return con
 
     def _delete_old_leftover_records(self, table):
         log.info(
@@ -212,17 +211,13 @@ class ImpalaDatabaseHeartbeatTest(HeartbeatTest):
 
                 if record_count != expected_record_count:
                     log.info(
-                        "Records are not available yet. Waiting {} seconds before trying again.".format(
-                            wait_time_seconds
-                        )
+                        f"Records are not available yet. Waiting {wait_time_seconds} seconds before trying again."
                     )
                     time.sleep(wait_time_seconds)
             except Exception as e:
                 caught_exception = e
                 log.info(
-                    "Error while querying for results. Waiting {} seconds before trying again.".format(
-                        wait_time_seconds
-                    )
+                    f"Error while querying for results. Waiting {wait_time_seconds} seconds before trying again."
                 )
                 time.sleep(wait_time_seconds)
 
@@ -249,19 +244,19 @@ class ImpalaDatabaseHeartbeatTest(HeartbeatTest):
         log.info("Database test verification passed successfully.")
 
     def assertTrue(self, condition, error, exception=None):
-        msg = (
-            "What: Database test failed.\n"
-            "Why: Error was {}. "
-            f"Most probably, the heartbeat data job (name: {self.config.job_name}) "
-            f"failed during this test execution or there were Database related issues.\n"
-            "Consequences: Test failure indicates an issue with Control Service deployment or VDK-Core -"
-            " a regression or infrastructure dependency issue.\n"
-            "Countermeasures: Check the error message. Check the Data Job status and logs in Kubernetes. "
-            " Check if VDK Control service or VDK-Core have not regressed.\n"
-        )
         if condition:
             log.info("Database test is successful.")
         else:
             if exception:
                 log.exception(exception)
+            msg = (
+                "What: Database test failed.\n"
+                "Why: Error was {}. "
+                f"Most probably, the heartbeat data job (name: {self.config.job_name}) "
+                f"failed during this test execution or there were Database related issues.\n"
+                "Consequences: Test failure indicates an issue with Control Service deployment or VDK-Core -"
+                " a regression or infrastructure dependency issue.\n"
+                "Countermeasures: Check the error message. Check the Data Job status and logs in Kubernetes. "
+                " Check if VDK Control service or VDK-Core have not regressed.\n"
+            )
             raise AssertionError(msg.format(error), exception)

@@ -21,12 +21,11 @@ deployment_id = "TODO"
 
 def _run_properties_command(rest_api_url: str, args: List[str], input=None):
     runner = CliRunner()
-    result = runner.invoke(
+    return runner.invoke(
         properties_command,
         args + ["-n", "test-job"] + ["-t", "test-team"] + ["-u", rest_api_url],
         input=input,
     )
-    return result
 
 
 def test_properties_list_empty(httpserver: PluginHTTPServer):

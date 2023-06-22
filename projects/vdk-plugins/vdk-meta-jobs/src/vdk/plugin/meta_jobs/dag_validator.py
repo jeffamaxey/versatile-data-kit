@@ -51,15 +51,16 @@ class DagValidator:
             ErrorMessage(
                 "",
                 "Meta Job failed due to a Data Job validation failure.",
-                f"There is a {error_type} error with job(s) {jobs}. " + reason,
+                f"There is a {error_type} error with job(s) {jobs}. {reason}",
                 "The DAG will not be built and the Meta Job will fail.",
                 countermeasures,
             )
         )
 
     def _validate_no_duplicates(self, jobs: List[Dict]):
-        duplicated_jobs = list({job["job_name"] for job in jobs if jobs.count(job) > 1})
-        if duplicated_jobs:
+        if duplicated_jobs := list(
+            {job["job_name"] for job in jobs if jobs.count(job) > 1}
+        ):
             self._raise_error(
                 ERROR.CONFLICT,
                 f"There are some duplicated jobs: {duplicated_jobs}.",
@@ -94,16 +95,16 @@ class DagValidator:
             )
 
     def _validate_allowed_and_required_keys(self, job: Dict):
-        disallowed_keys = [key for key in job.keys() if key not in allowed_job_keys]
-        if disallowed_keys:
+        if disallowed_keys := [
+            key for key in job.keys() if key not in allowed_job_keys
+        ]:
             self._raise_error(
                 ERROR.PERMISSION,
                 "One or more job dict keys are not allowed.",
                 f"Remove the disallowed Data Job Dict keys. "
                 f"Keys {disallowed_keys} are not allowed. Allowed keys: {allowed_job_keys}.",
             )
-        missing_keys = [key for key in required_job_keys if key not in job]
-        if missing_keys:
+        if missing_keys := [key for key in required_job_keys if key not in job]:
             self._raise_error(
                 ERROR.REQUIREMENT,
                 "One or more job dict required keys are missing.",
@@ -130,10 +131,9 @@ class DagValidator:
                 f"is {type(dependencies)}. Expected type is list.",
                 [job_name],
             )
-        non_string_dependencies = [
+        if non_string_dependencies := [
             pred for pred in dependencies if not isinstance(pred, str)
-        ]
-        if non_string_dependencies:
+        ]:
             self._raise_error(
                 ERROR.TYPE,
                 "One or more items of the job dependencies list are not strings.",

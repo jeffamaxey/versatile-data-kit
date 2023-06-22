@@ -27,11 +27,9 @@ def utilities_registry(job_config: Configuration) -> Dict[str, Any]:
     :param job_config: The data job configuration.
     :return: A dictionary with all available troubleshooting utilities.
     """
-    registered_utilities: Dict[str, Any] = {}
-    registered_utilities["thread-dump"] = ThreadDumpUtility(
-        job_configuration=job_config
-    )
-
+    registered_utilities: Dict[str, Any] = {
+        "thread-dump": ThreadDumpUtility(job_configuration=job_config)
+    }
     return registered_utilities
 
 
@@ -49,8 +47,7 @@ def get_utilities_to_use(
     registered_utilities: Dict = utilities_registry(job_config=job_config)
 
     for util in selected_utilities.split(","):
-        registered_util = registered_utilities.get(util)
-        if registered_util:
+        if registered_util := registered_utilities.get(util):
             utilities.append(registered_util)
         else:
             log.info(

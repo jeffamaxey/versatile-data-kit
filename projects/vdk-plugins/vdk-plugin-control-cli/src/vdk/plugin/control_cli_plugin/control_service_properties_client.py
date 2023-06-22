@@ -23,10 +23,9 @@ class ControlServicePropertiesServiceClient(IPropertiesServiceClient):
 
     @ConstrolServiceApiErrorDecorator()
     def read_properties(self, job_name: str, team_name: str):
-        data = self.__properties_api.data_job_properties_read(
+        return self.__properties_api.data_job_properties_read(
             team_name=team_name, job_name=job_name, deployment_id="TODO"
         )
-        return data
 
     @ConstrolServiceApiErrorDecorator()
     def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:

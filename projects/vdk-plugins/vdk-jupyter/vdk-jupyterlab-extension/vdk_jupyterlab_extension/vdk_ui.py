@@ -56,7 +56,7 @@ class VdkUI:
                 or x.name.lower().endswith(".sql")
             )
         ]
-        if len(script_files) == 0:
+        if not script_files:
             return {"message": f"No steps were found in {path}!"}
         with open("vdk_logs.txt", "w+") as log_file:
             path = shlex.quote(path)
@@ -193,10 +193,7 @@ class VdkUI:
                 for index, jupyter_cell in enumerate(notebook_json["cells"]):
                     if jupyter_cell["id"] == cell_id:
                         notebook_path = str(notebook_file).replace(os.getcwd(), "")
-                        return {
-                            "path": str(notebook_path),
-                            "cellIndex": str(index),
-                        }
+                        return {"path": notebook_path, "cellIndex": str(index)}
         return {"path": "", "cellIndex": ""}
 
     @staticmethod
@@ -213,8 +210,8 @@ class VdkUI:
                 return []
         with open(notebook_path) as f:
             notebook_json = json.load(f)
-            vdk_cells = []
-            for index, jupyter_cell in enumerate(notebook_json["cells"]):
-                if "vdk" in jupyter_cell["metadata"].get("tags", {}):
-                    vdk_cells.append(index)
-            return vdk_cells
+            return [
+                index
+                for index, jupyter_cell in enumerate(notebook_json["cells"])
+                if "vdk" in jupyter_cell["metadata"].get("tags", {})
+            ]

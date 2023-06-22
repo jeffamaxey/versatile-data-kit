@@ -86,14 +86,14 @@ def test_ingestion_csv_with_options():
 
 
 def test_csv_export(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": db_dir,
-        },
-    ):
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_SQLITE_FILE": db_dir,
+            },
+        ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
         runner.invoke(
             [
@@ -120,14 +120,13 @@ def test_csv_export(tmpdir):
         path = os.path.abspath(os.getcwd())
         with open(os.path.join(path, "result.csv")) as file:
             reader = csv.reader(file, delimiter=",")
-            for row in reader:
-                output.append(row)
+            output.extend(iter(reader))
         assert output[0] == ["some_test_data", "more_test_data"]
         assert output[1] == ["some_test_data_copy", "more_test_data_copy"]
 
 
 def test_export_csv_with_already_existing_file(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
@@ -152,7 +151,7 @@ def test_export_csv_with_already_existing_file(tmpdir):
 
 
 def test_csv_export_with_nonexistent_table(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
         os.environ,
         {
@@ -175,14 +174,14 @@ def test_csv_export_with_nonexistent_table(tmpdir):
 
 
 def test_csv_export_with_no_data(tmpdir):
-    db_dir = str(tmpdir) + "vdk-sqlite.db"
+    db_dir = f"{str(tmpdir)}vdk-sqlite.db"
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": db_dir,
-        },
-    ):
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SQLITE",
+                "VDK_SQLITE_FILE": db_dir,
+            },
+        ):
         runner = CliEntryBasedTestRunner(sqlite_plugin, csv_plugin)
         drop_table(runner, "test_table")
         runner.invoke(
@@ -204,9 +203,8 @@ def test_csv_export_with_no_data(tmpdir):
         output = []
         with open(os.path.join(os.path.abspath(os.getcwd()), "result4.csv")) as file:
             reader = csv.reader(file, delimiter=",")
-            for row in reader:
-                output.append(row)
-        assert len(output) == 0
+            output.extend(iter(reader))
+        assert not output
 
 
 def drop_table(runner: CliEntryBasedTestRunner, table: str):

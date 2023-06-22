@@ -23,8 +23,8 @@ def test_create_table():
 
     trino_test._create_table(db, table_name, columns)
 
-    assert len(queries) > 0
-    expected = f"""
+    assert queries
+    expected = """
         CREATE TABLE IF NOT EXISTS my_db.my_table(
             int_column bigint,string_column varchar,bool_column boolean,date_column timestamp,float_column double
         )
@@ -42,7 +42,7 @@ def test_delete_table():
 
     trino_test._delete_table(db, table_name)
 
-    expected = f"drop table if exists my_db.my_table"
+    expected = "drop table if exists my_db.my_table"
     assert queries[0] == expected
 
 
@@ -87,7 +87,7 @@ def test_select_data():
 
     trino_test._select_data(db, table_name, column_filters)
 
-    assert len(queries) > 0
+    assert queries
     expected = (
         "select * from my_db.my_table where "
         "int_column=1 and string_column='str' and "

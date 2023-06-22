@@ -145,5 +145,5 @@ def run(job_input: IJobInput) -> None:
             from_db=target_schema,
             from_table_name=target_table,
             to_db=target_schema,
-            to_table_name="backup_" + target_table,
+            to_table_name=f"backup_{target_table}",
         )

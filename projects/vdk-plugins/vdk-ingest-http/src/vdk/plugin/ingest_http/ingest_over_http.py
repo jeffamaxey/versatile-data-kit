@@ -156,9 +156,10 @@ class IngestOverHttp(IIngesterPlugin):
     @staticmethod
     def __amend_payload(payload, destination_table):
         for obj in payload:
-            # TODO: Move all ingestion formatting logic to a separate plugin.
-            if not ("@table" in obj):
-                if not destination_table:
+            if "@table" not in obj:
+                if destination_table:
+                    obj["@table"] = destination_table
+                else:
                     errors.log_and_throw(
                         errors.ResolvableBy.USER_ERROR,
                         log,
@@ -168,8 +169,6 @@ class IngestOverHttp(IIngesterPlugin):
                         "Payload would not be ingested, and data job may fail.",
                         "Re-send payload by including @table key/value pair, or pass a destination_table parameter to the ingestion method called.",
                     )
-                else:
-                    obj["@table"] = destination_table
 
     def __send_data(self, data, http_url, headers) -> IngestionResult:
         data = json.dumps(data, allow_nan=self._allow_nan)
@@ -227,7 +226,7 @@ class IngestOverHttp(IIngesterPlugin):
                 errors.ResolvableBy.PLATFORM_ERROR,
                 log,
                 "Failed to sent payload",
-                "Unknown error. Error message was : " + str(e),
+                f"Unknown error. Error message was : {str(e)}",
                 "Will not be able to send the payload for ingestion",
                 "See error message for help ",
                 e,

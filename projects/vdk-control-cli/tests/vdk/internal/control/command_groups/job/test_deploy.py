@@ -244,7 +244,7 @@ def test_update_multiple(httpserver: PluginHTTPServer, tmpdir: LocalPath):
     rest_api_url = httpserver.url_for("")
 
     httpserver.expect_request(
-        uri=f"/data-jobs/for-team/test-team/jobs/test-job/deployments",
+        uri="/data-jobs/for-team/test-team/jobs/test-job/deployments",
         method="POST",
     ).respond_with_response(Response(status=202))
 
@@ -404,8 +404,8 @@ def test_deploy_show_with_json_output_and_no_deployments(httpserver: PluginHTTPS
     assert isinstance(
         json_result, list
     ), f"expected a list, got: {type(json_result)}, output: {result.output}"
-    assert (
-        len(list(json_result)) == 0
+    assert not list(
+        json_result
     ), f"expected an empty list, got: {json_result}, output: {result.output}"
 
 

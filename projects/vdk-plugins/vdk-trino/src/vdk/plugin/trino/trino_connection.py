@@ -69,7 +69,7 @@ class TrinoConnection(ManagedConnectionBase):
         auth = (
             BasicAuthentication(self._user, self._password) if self._password else None
         )
-        conn = dbapi.connect(
+        return dbapi.connect(
             host=self._host,
             port=self._port,
             user=self._user,
@@ -80,13 +80,11 @@ class TrinoConnection(ManagedConnectionBase):
             verify=self._ssl_verify,
             request_timeout=self._timeout_seconds,
         )
-        return conn
 
     def execute_query(self, query):
         res = self.execute_query_with_retries(query)
         if self._lineage_logger:
-            lineage_data = self._get_lineage_data(query)
-            if lineage_data:
+            if lineage_data := self._get_lineage_data(query):
                 self._lineage_logger.send(lineage_data)
         #  TODO: collect lineage for failed query
         return res
@@ -99,8 +97,7 @@ class TrinoConnection(ManagedConnectionBase):
         reraise=True,
     )
     def execute_query_with_retries(self, query):
-        res = super().execute_query(query)
-        return res
+        return super().execute_query(query)
 
     def _get_lineage_data(self, query):
         from vdk.plugin.trino import lineage_utils
@@ -109,10 +106,9 @@ class TrinoConnection(ManagedConnectionBase):
         statement = sqlparse.parse(query)[0]
 
         if statement.get_type() == "ALTER":
-            rename_table_lineage = lineage_utils.get_rename_table_lineage_from_query(
+            if rename_table_lineage := lineage_utils.get_rename_table_lineage_from_query(
                 query, self._schema, self._catalog
-            )
-            if rename_table_lineage:
+            ):
                 log.debug("Collecting lineage for rename table operation ...")
                 return rename_table_lineage
             else:
@@ -120,15 +116,14 @@ class TrinoConnection(ManagedConnectionBase):
                     "ALTER operation not a RENAME TABLE operation. No lineage will be collected."
                 )
 
-        elif statement.get_type() == "SELECT" or statement.get_type() == "INSERT":
+        elif statement.get_type() in ["SELECT", "INSERT"]:
             if lineage_utils.is_heartbeat_query(query):
                 return None
             log.debug("Collecting lineage for SELECT/INSERT query ...")
             try:
                 with closing_noexcept_on_close(self._cursor()) as cur:
                     cur.execute(f"EXPLAIN (TYPE IO, FORMAT JSON) {query}")
-                    result = cur.fetchall()
-                    if result:
+                    if result := cur.fetchall():
                         return lineage_utils.get_lineage_data_from_io_explain(
                             query, result[0][0]
                         )

@@ -25,7 +25,7 @@ def run(job_input: IJobInput):
     args = job_input.get_arguments()
     target_schema = args.get("target_schema")
     target_table = args.get("target_table")
-    tmp_target_table = "tmp_" + target_table
+    tmp_target_table = f"tmp_{target_table}"
     trino_queries = TrinoTemplateQueries(job_input)
 
     trino_queries.perform_safe_move_data_to_table_step(

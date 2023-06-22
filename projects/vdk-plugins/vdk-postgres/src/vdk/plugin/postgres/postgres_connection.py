@@ -84,9 +84,7 @@ class PostgresConnection(ManagedConnectionBase):
         self._port = port
         self._kwargs = kwargs
 
-        dsn_message_optional = ""
-        if self._dsn:
-            dsn_message_optional = f"dsn: {dsn}, "
+        dsn_message_optional = f"dsn: {dsn}, " if self._dsn else ""
         _log.debug(
             f"Creating new PostgreSQL connection for {dsn_message_optional}"
             f"user: {user} to [host:port/dbname]: {host}:{port}/{dbname}"

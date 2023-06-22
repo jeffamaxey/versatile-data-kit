@@ -40,11 +40,7 @@ class PluginRegistry(IPluginRegistry):
         self.__plugin_load_success = False
 
     def __str__(self):
-        s = (
-            f"PluginRegistry(group_name={self.__group_name})"
-            f"Plugins: " + f"{os.linesep}".join([str(v) for v in self.list_plugins()])
-        )
-        return s
+        return f'PluginRegistry(group_name={self.__group_name})Plugins: {f"{os.linesep}".join([str(v) for v in self.list_plugins()])}'
 
     def plugin_manager(self):
         return self.__plugin_manager
@@ -87,10 +83,9 @@ class PluginRegistry(IPluginRegistry):
         which contain the hook implementations
         """
         try:
-            plugin_name = self.__plugin_manager.register(
+            if plugin_name := self.__plugin_manager.register(
                 module_or_class_with_hook_impls, name=name
-            )
-            if plugin_name:
+            ):
                 log.debug(f"Registered new plugin: {plugin_name}")
             else:
                 log.warning(
@@ -98,7 +93,7 @@ class PluginRegistry(IPluginRegistry):
                 )
         except Exception as e:
             message = ErrorMessage(
-                summary=f"Failed to load plugin ",
+                summary="Failed to load plugin ",
                 what=f"Failed to load plugin with name  '{name}' and module/class '{module_or_class_with_hook_impls}'",
                 why="Most likely a bug in the plugin",
                 consequences="The CLI tool will likely abort.",

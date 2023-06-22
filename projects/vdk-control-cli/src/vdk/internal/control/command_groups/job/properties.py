@@ -60,9 +60,9 @@ class JobProperties:
 
     @staticmethod
     def _to_bool(value: str) -> bool:
-        if value == "true" or value == "True":
+        if value in {"true", "True"}:
             return True
-        if value == "false" or value == "False":
+        if value in {"false", "False"}:
             return False
         raise ValueError("bool cast accept only True/true/False/false values.")
 
@@ -72,7 +72,7 @@ class JobProperties:
             log.debug(f"Cast {key} to type {value_type}")
             if value_type == bool:
                 return JobProperties._to_bool(new_value)
-            if value_type == list or value_type == dict:
+            if value_type in [list, dict]:
                 raise ValueError(
                     "Updating Properties which are set to list or dict is not supported through CLI."
                 )
@@ -81,13 +81,9 @@ class JobProperties:
         except Exception as e:
             raise VDKException(
                 f"The value of the passed property with key {key} is not expected type",
-                f"We detect existing value for property with key '{key}' has type {value_type}. "
-                f"But we could not convert the value '{new_value}' to that type. Error is {e}",
-                f"In order to ensure that we do not overwrite with bad value the properties, "
-                f"the operation aborts and no property will be updated.",
-                f"If the key value is correct, you can first delete the key (with --delete)"
-                f" and then use the cli to set it again. "
-                f"Or you can use VDK job_input.set_all_properties to overwrite them.",
+                f"We detect existing value for property with key '{key}' has type {value_type}. But we could not convert the value '{new_value}' to that type. Error is {e}",
+                'In order to ensure that we do not overwrite with bad value the properties, the operation aborts and no property will be updated.',
+                'If the key value is correct, you can first delete the key (with --delete) and then use the cli to set it again. Or you can use VDK job_input.set_all_properties to overwrite them.',
             )
 
     def __merge_props(
@@ -321,7 +317,7 @@ def properties_command(
         except Exception as e:
             raise VDKException(
                 "Expected valid json for properties overwrite.",
-                "JSON was not valid; error is " + str(e),
+                f"JSON was not valid; error is {str(e)}",
                 "Operation is aborted. Nothing has been changed.",
                 "Fix the file to be a valid json and re-try again.",
             )

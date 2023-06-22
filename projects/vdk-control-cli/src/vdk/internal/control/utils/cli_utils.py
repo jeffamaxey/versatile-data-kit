@@ -144,12 +144,10 @@ class QueryField:
     def to_string(self):
         field_as_string = self.name
         if self.arguments:
-            arguments_as_strings: list[str] = []
-            for key, value in self.arguments.items():
-                arguments_as_strings.append(f"{key}: {value}")
-            field_as_string = (
-                field_as_string + "(" + ", ".join(arguments_as_strings) + ")"
-            )
+            arguments_as_strings: list[str] = [
+                f"{key}: {value}" for key, value in self.arguments.items()
+            ]
+            field_as_string = f"{field_as_string}(" + ", ".join(arguments_as_strings) + ")"
         if self.alias:
             field_as_string = f"{self.alias}: {field_as_string}"
         if self.fields:

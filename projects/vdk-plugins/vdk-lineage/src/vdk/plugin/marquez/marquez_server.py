@@ -22,9 +22,7 @@ def execute(command, success_codes=(0,), env=None):
 
     if status not in success_codes:
         raise Exception(
-            'Command {} returned {}: """{}""".'.format(
-                command, status, output.decode("utf-8")
-            )
+            f'Command {command} returned {status}: """{output.decode("utf-8")}""".'
         )
     return output
 

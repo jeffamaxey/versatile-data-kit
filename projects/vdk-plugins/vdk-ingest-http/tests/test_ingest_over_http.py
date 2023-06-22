@@ -68,9 +68,7 @@ def test_ingest_over_http_compression(mock_post):
     def configuration_side_effect(*args, **kwargs):
         if args[0] == "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES":
             return 3
-        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING":
-            return encoding
-        return None
+        return encoding if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING" else None
 
     job_context = MagicMock()
     job_context.core_context.configuration.get_value.side_effect = (
@@ -104,9 +102,7 @@ def test_ingest_over_http_result(mock_post):
     def configuration_side_effect(*args, **kwargs):
         if args[0] == "INGEST_OVER_HTTP_COMPRESSION_THRESHOLD_BYTES":
             return 3
-        if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING":
-            return encoding
-        return None
+        return encoding if args[0] == "INGEST_OVER_HTTP_COMPRESSION_ENCODING" else None
 
     job_context = MagicMock()
     job_context.core_context.configuration.get_value.side_effect = (
@@ -197,9 +193,7 @@ def test_ingest_over_http_request_parameters_propagation(mock_post, mock_mount):
             return retry_backoff_factor
         if arg("INGEST_OVER_HTTP_RETRY_STATUS_FORCELIST"):
             return retry_status_forcelist
-        if arg("INGEST_OVER_HTTP_ALLOW_NAN"):
-            return allow_nan
-        return None
+        return allow_nan if arg("INGEST_OVER_HTTP_ALLOW_NAN") else None
 
     job_context = MagicMock()
     job_context.core_context.configuration.get_value.side_effect = (
@@ -266,9 +260,7 @@ def test_ingest_over_http_json_dumps_parameters_propagation(mock_jsondumps):
         def arg(a):
             return args[0] == a
 
-        if arg("INGEST_OVER_HTTP_ALLOW_NAN"):
-            return allow_nan
-        return None
+        return allow_nan if arg("INGEST_OVER_HTTP_ALLOW_NAN") else None
 
     job_context = MagicMock()
     job_context.core_context.configuration.get_value.side_effect = (

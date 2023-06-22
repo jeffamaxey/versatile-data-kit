@@ -59,7 +59,7 @@ class InMemAuthConfiguration:
     CREDS_KEY = "credentials"
 
     def __init__(self):
-        self._config = dict()
+        self._config = {}
 
     def save_credentials(self, content: str) -> None:
         self._config[InMemAuthConfiguration.CREDS_KEY] = content
@@ -93,21 +93,20 @@ class AuthConfigFolder:
                 consequence="User won't be able to access Control Service",
                 countermeasure=f"Remove file {self.vdk_config_folder}",
             )
-        else:
-            if not os.path.exists(self.vdk_config_folder) and not os.path.isdir(
-                self.vdk_config_folder
-            ):
-                try:
-                    pathlib.Path(self.vdk_config_folder).mkdir(
-                        parents=True, exist_ok=True
-                    )
-                except Exception as e:
-                    raise VDKAuthOSError(
-                        what="Configuration folder was not created and user is not logged in",
-                        why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
-                        consequence="User won't be able to access Control Service",
-                        countermeasure=f"Check if the client has write access to: {base_dir}",
-                    )
+        if not os.path.exists(self.vdk_config_folder) and not os.path.isdir(
+            self.vdk_config_folder
+        ):
+            try:
+                pathlib.Path(self.vdk_config_folder).mkdir(
+                    parents=True, exist_ok=True
+                )
+            except Exception as e:
+                raise VDKAuthOSError(
+                    what="Configuration folder was not created and user is not logged in",
+                    why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
+                    consequence="User won't be able to access Control Service",
+                    countermeasure=f"Check if the client has write access to: {base_dir}",
+                )
 
     def save_credentials(self, content):
         try:

@@ -50,5 +50,4 @@ class RemoteDataJobExecutor(IDataJobExecutor):
     ) -> Optional[List[DataJobExecution]]:
         vdk_cfg = VDKConfig()
         job = RemoteDataJob(job_name, team_name, vdk_cfg.control_service_rest_api_url)
-        executions_list = job.get_job_executions()
-        return executions_list
+        return job.get_job_executions()

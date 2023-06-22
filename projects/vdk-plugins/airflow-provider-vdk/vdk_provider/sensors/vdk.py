@@ -71,13 +71,11 @@ class VDKSensor(BaseSensorOperator):
             )
 
             return True
-        elif job_status == JobStatus.CANCELLED or job_status == JobStatus.SKIPPED:
+        elif job_status in [JobStatus.CANCELLED, JobStatus.SKIPPED]:
             raise VDKJobExecutionException(
                 f"Job execution {self.job_execution_id} has been {job_status}."
             )
-        elif (
-            job_status == JobStatus.USER_ERROR or job_status == JobStatus.PLATFORM_ERROR
-        ):
+        elif job_status in [JobStatus.USER_ERROR, JobStatus.PLATFORM_ERROR]:
             log.info(
                 f"Job logs: {vdk_hook.get_job_execution_log(self.job_execution_id)}"
             )

@@ -33,7 +33,7 @@ A similar behaviour happened in the 2010-2015 period.
 )
 
 periods = pd.read_sql_query(
-    f"SELECT DISTINCT(Period) FROM merged_life_expectancy", conn
+    "SELECT DISTINCT(Period) FROM merged_life_expectancy", conn
 )
 period = st.selectbox("Select Period", periods["Period"], key="period")
 df = pd.read_sql_query(
@@ -74,7 +74,7 @@ st.markdown(
 )
 
 df = pd.read_sql_query(
-    f"SELECT State, LifeExpectancy, GDP, Region FROM merged_life_expectancy WHERE Period = '2018'",
+    "SELECT State, LifeExpectancy, GDP, Region FROM merged_life_expectancy WHERE Period = '2018'",
     conn,
 )
 

@@ -204,7 +204,7 @@ def test_auth_read_access_token_in_memory():
 
 
 def get_json_response_mock():
-    json_response_mock = {
+    return {
         "id_token": "",
         "token_type": "bearer",
         "expires_in": 1799,
@@ -212,7 +212,6 @@ def get_json_response_mock():
         "access_token": "axczfe12casASDCz",
         "refresh_token": "refresh",
     }
-    return json_response_mock
 
 
 def allow_oauthlib_insecure_transport():

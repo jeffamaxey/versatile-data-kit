@@ -140,7 +140,7 @@ class IngesterBase(IIngester):
         """
         See parent doc
         """
-        if len(column_names) == 0 and destination_table is None:
+        if not column_names and destination_table is None:
             errors.log_and_throw(
                 ResolvableBy.USER_ERROR,
                 log,
@@ -388,11 +388,10 @@ class IngesterBase(IIngester):
                 self._fail_count.increment()
                 if self._log_upload_errors:
                     log.warning(
-                        "Failed to send a payload for ingestion. One or more rows were not ingested.\n"
-                        "Exception was: {}".format(str(e))
+                        f"Failed to send a payload for ingestion. One or more rows were not ingested.\nException was: {str(e)}"
                     )
             finally:
-                for i in range(number_of_payloads):
+                for _ in range(number_of_payloads):
                     self._objects_queue.task_done()
         # Return statement below is coupled with _payload_aggregator_thread
         # and is used to reset the aggregated payload, number of payloads and
@@ -440,10 +439,9 @@ class IngesterBase(IIngester):
                         self.__verify_payload_format(payload_dict=payload_dict)
 
                     if ingestion_metadata:
-                        updated_dynamic_params: Optional[dict] = ingestion_metadata.pop(
+                        if updated_dynamic_params := ingestion_metadata.pop(
                             IIngesterPlugin.UPDATED_DYNAMIC_PARAMS, None
-                        )
-                        if updated_dynamic_params:
+                        ):
                             destination_table = (
                                 updated_dynamic_params.get(
                                     IIngesterPlugin.DESTINATION_TABLE_KEY
@@ -493,9 +491,7 @@ class IngesterBase(IIngester):
                     if self._log_upload_errors:
                         # TODO: When working on row count telemetry we can add the exact number of rows not ingested.
                         log.warning(
-                            "Failed to ingest a payload. "
-                            "One or more rows were not ingested.\n"
-                            "Exception was: {}".format(str(e))
+                            f"Failed to ingest a payload. One or more rows were not ingested.\nException was: {str(e)}"
                         )
                     exception = e
                 finally:
@@ -692,7 +688,7 @@ class IngesterBase(IIngester):
         # TODO: optimize the check - we should not need to serialize the payload every time
         try:
             json.dumps(payload_dict, cls=DecimalJsonEncoder)
-        except (TypeError, OverflowError, Exception) as e:
+        except Exception as e:
             errors.log_and_throw(
                 errors.ResolvableBy.USER_ERROR,
                 log,

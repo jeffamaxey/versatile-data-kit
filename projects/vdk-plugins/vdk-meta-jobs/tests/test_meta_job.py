@@ -25,7 +25,7 @@ def json_serial(obj):
 
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
+    raise TypeError(f"Type {type(obj)} not serializable")
 
 
 class TestMetaJob:
@@ -33,9 +33,9 @@ class TestMetaJob:
         rest_api_url = self.httpserver.url_for("")
         team_name = "team-awesome"
         if self.jobs is None:
-            self.jobs = [("job" + str(i), [200], "succeeded", 0) for i in range(1, 5)]
+            self.jobs = [(f"job{str(i)}", [200], "succeeded", 0) for i in range(1, 5)]
 
-        started_jobs = dict()
+        started_jobs = {}
 
         for job_name, request_responses, job_status, *execution_duration in self.jobs:
             request_responses.reverse()
@@ -132,7 +132,7 @@ class TestMetaJob:
         self.api_url = self._prepare()
         self.env_vars = {"VDK_CONTROL_SERVICE_REST_API_URL": self.api_url}
         if additional_env_vars is not None:
-            self.env_vars.update(additional_env_vars)
+            self.env_vars |= additional_env_vars
 
     def _run_meta_job(self, meta_job_name):
         with mock.patch.dict(
@@ -285,7 +285,7 @@ class TestMetaJob:
             self.httpserver.stop()
 
     def test_meta_job_concurrent_running_jobs_limit(self):
-        jobs = [("job" + str(i), [200], "succeeded", 1) for i in range(1, 8)]
+        jobs = [(f"job{str(i)}", [200], "succeeded", 1) for i in range(1, 8)]
         env_vars = {
             "VDK_META_JOBS_MAX_CONCURRENT_RUNNING_JOBS": "2",
             "VDK_META_JOBS_DELAYED_JOBS_MIN_DELAY_SECONDS": "1",
@@ -294,9 +294,9 @@ class TestMetaJob:
         }
         self._set_up(jobs, env_vars)
         with mock.patch.dict(
-            os.environ,
-            self.env_vars,
-        ):
+                os.environ,
+                self.env_vars,
+            ):
             self.runner = CliEntryBasedTestRunner(dags_plugin)
             result = self._run_meta_job("meta-job-exceed-limit")
             expected_max_running_jobs = int(
@@ -306,21 +306,21 @@ class TestMetaJob:
             running_jobs = set()
             for request, response in self.httpserver.log:
                 if "executions" in request.path:
-                    if request.method == "POST":
-                        job_name = request.path.split("/jobs/")[1].split("/")[0]
-                        running_jobs.add(job_name)
-                        assert (
-                            len(running_jobs) <= expected_max_running_jobs
-                        )  # assert that max concurrent running jobs is not exceeded
                     if request.method == "GET":
                         execution = json.loads(response.response[0])
                         if isinstance(execution, list):
                             execution = execution[0]
                         if execution["status"] == "succeeded":
                             running_jobs.discard(execution["job_name"])
+                    elif request.method == "POST":
+                        job_name = request.path.split("/jobs/")[1].split("/")[0]
+                        running_jobs.add(job_name)
+                        assert (
+                            len(running_jobs) <= expected_max_running_jobs
+                        )  # assert that max concurrent running jobs is not exceeded
             cli_assert_equal(0, result)
             # assert that all the jobs finished successfully
-            assert len(running_jobs) == 0
+            assert not running_jobs
             self.httpserver.stop()
 
     def _test_meta_job_validation(self, meta_job_name):

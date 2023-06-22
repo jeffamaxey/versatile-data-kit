@@ -30,8 +30,7 @@ class NotificationConfiguration:
         # and automatically parses them as below
         cc_list = str(self.__config[NOTIFICATION_EMAIL_CC_LIST])
         cc_result = cc_list.split(";") if cc_list else []
-        cc_result = [cc.strip() for cc in cc_result if len(cc.strip()) > 0]
-        return cc_result
+        return [cc.strip() for cc in cc_result if len(cc.strip()) > 0]
 
     def get_sender(self) -> str:
         return str(self.__config[NOTIFICATION_SENDER])

@@ -135,4 +135,4 @@ def _is_direct_user_code_error(exception: Exception, job_path: Optional[Path]):
     # Check if the data job path is contained in the last exception call from the exception
     # traceback. If it is, it is safe to assume that the exception was generated directly in
     # user code, and not somewhere else in the vdk code or one of vdk's plugins.
-    return True if data_job_path in last_caller_module else False
+    return data_job_path in last_caller_module

@@ -36,7 +36,6 @@ class TrinoTemplateQueries:
         except Exception as e:
             if self.__is_table_not_found_error(e):
                 result = False
-                pass
             else:
                 raise
 
@@ -220,8 +219,6 @@ class TrinoTemplateQueries:
             )
         except Exception as e:
             result = None
-            pass
-
         return result
 
     @staticmethod
@@ -233,4 +230,4 @@ class TrinoTemplateQueries:
 
     @staticmethod
     def __get_backup_table_name(table_name):
-        return "backup_" + table_name
+        return f"backup_{table_name}"
