@@ -35,25 +35,24 @@ def _parse_log_level_module(log_level_module):
         "CRITICAL",
     ]
     try:
-        if log_level_module and log_level_module.strip():
-            modules = log_level_module.split(";")
-            result = {}
-            for module in modules:
-                if module:
-                    module_and_level = module.split("=")
-                    if not re.search("[a-zA-Z0-9_.-]+", module_and_level[0].lower()):
-                        raise ValueError(
-                            f"Invalid logging module name: '{module_and_level[0]}'. "
-                            f"Must be alphanumerical/underscore characters."
-                        )
-                    if module_and_level[1].upper() not in valid_logging_levels:
-                        raise ValueError(
-                            f"Invalid logging level: '{module_and_level[1]}'. Must be one of {valid_logging_levels}."
-                        )
-                    result[module_and_level[0]] = {"level": module_and_level[1].upper()}
-            return result
-        else:
+        if not log_level_module or not log_level_module.strip():
             return {}
+        modules = log_level_module.split(";")
+        result = {}
+        for module in modules:
+            if module:
+                module_and_level = module.split("=")
+                if not re.search("[a-zA-Z0-9_.-]+", module_and_level[0].lower()):
+                    raise ValueError(
+                        f"Invalid logging module name: '{module_and_level[0]}'. "
+                        f"Must be alphanumerical/underscore characters."
+                    )
+                if module_and_level[1].upper() not in valid_logging_levels:
+                    raise ValueError(
+                        f"Invalid logging level: '{module_and_level[1]}'. Must be one of {valid_logging_levels}."
+                    )
+                result[module_and_level[0]] = {"level": module_and_level[1].upper()}
+        return result
     except Exception as e:
         errors.log_and_throw(
             ResolvableBy.CONFIG_ERROR,
@@ -105,7 +104,7 @@ def configure_loggers(
         "urllib3": {"level": "INFO"},
         "vdk": {"level": vdk_logging_level},
     }
-    _LOGGERS.update(_parse_log_level_module(log_level_module))
+    _LOGGERS |= _parse_log_level_module(log_level_module)
 
     _FORMATTERS = {"detailedFormatter": {"format": DETAILED_FORMAT}}
 
@@ -141,7 +140,7 @@ def configure_loggers(
     if syslog_enabled:
         handlers.append("SysLog")
 
-    if "CLOUD" == log_config_type:
+    if log_config_type == "CLOUD":
         CLOUD = {  # @UnusedVariable
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
@@ -151,9 +150,7 @@ def configure_loggers(
             "disable_existing_loggers": False,
         }
         logging.config.dictConfig(CLOUD)
-    elif "NONE" == log_config_type:
-        pass
-    else:
+    elif log_config_type != "NONE":
         LOCAL = {  # @UnusedVariable
             "version": 1,
             "handlers": {"consoleHandler": _CONSOLE_HANDLER, "SysLog": _SYSLOG_HANDLER},
@@ -171,8 +168,7 @@ def _set_already_configured() -> None:
 
 
 def _is_already_configured() -> bool:
-    res = hasattr(modules[__name__], "logging_already_configured")
-    return res
+    return hasattr(modules[__name__], "logging_already_configured")
 
 
 def ensure_logging_for_current_test() -> None:
@@ -187,21 +183,22 @@ def ensure_logging_for_current_test() -> None:
 
     2018-04-19 16:05:48,488=1524143148[VDK] impala_connection_test.py [DEBUG]  ......
     """
-    if not _is_already_configured():
-        try:
-            from inspect import currentframe
+    if _is_already_configured():
+        return
+    try:
+        from inspect import currentframe
 
-            me = cast(types.FrameType, currentframe())
-            caller = cast(types.FrameType, me.f_back)
-            path = caller.f_locals["__file__"]
-            from os.path import split
+        me = cast(types.FrameType, currentframe())
+        caller = cast(types.FrameType, me.f_back)
+        path = caller.f_locals["__file__"]
+        from os.path import split
 
-            dir, fname = split(path)  # @ReservedAssignment
-        except:
-            fname = "n/a"
-        from time import time
+        dir, fname = split(path)  # @ReservedAssignment
+    except:
+        fname = "n/a"
+    from time import time
 
-        configure_loggers(fname, str(time()))
+    configure_loggers(fname, str(time()))
 
 
 class LoggingPlugin:

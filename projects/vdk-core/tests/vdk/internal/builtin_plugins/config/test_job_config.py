@@ -115,11 +115,11 @@ class TestJobConfig:
         )
         cfg = JobConfig(self._test_dir)
 
-        assert not cfg.get_team(), f"empty config.ini file should not provide a team"
+        assert not cfg.get_team(), "empty config.ini file should not provide a team"
 
         assert not cfg.set_team_if_exists(
             "my unique team name"
-        ), f"set_team_if_exists was supposed to return False if there is no team option in config.ini"
+        ), "set_team_if_exists was supposed to return False if there is no team option in config.ini"
 
     def _perform_set_team_test(self, team_name):
         assert self._cfg.set_team_if_exists(

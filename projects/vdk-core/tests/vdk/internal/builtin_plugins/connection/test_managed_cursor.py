@@ -126,7 +126,7 @@ def test_recovery__success__execute():
     mock_connection_hook_spec.db_connection_recover_operation.assert_called_once()
     calls = [
         call(f"decorated {_query}"),
-        call(f"decorated recovery"),
+        call("decorated recovery"),
         call(f"decorated {_query}"),
     ]
     mock_native_cursor.execute.assert_has_calls(calls)

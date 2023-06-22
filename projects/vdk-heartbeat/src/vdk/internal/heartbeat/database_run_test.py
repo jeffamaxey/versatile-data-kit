@@ -134,11 +134,11 @@ class DatabaseHeartbeatTest(HeartbeatTest):
                     res = cursor.fetchall()
                 except Exception as pe:
                     res = None
-                    if str(pe) in (
-                        "No results.  Previous SQL was not a query.",  # message in pyodbc
-                        "Trying to fetch results on an operation with no results.",  # message in impyla
-                        "no results to fetch",  # psycopg: ProgrammingError: no results to fetch
-                    ):
+                    if str(pe) in {
+                        "No results.  Previous SQL was not a query.",
+                        "Trying to fetch results on an operation with no results.",
+                        "no results to fetch",
+                    }:
                         log.debug(
                             "Fetching all results from query SUCCEEDED. Query does not produce results (e.g. DROP TABLE)."
                         )
@@ -212,18 +212,14 @@ class DatabaseHeartbeatTest(HeartbeatTest):
 
                 if record_count != expected_record_count:
                     log.info(
-                        "Records are not available yet. Waiting {} seconds before trying again.".format(
-                            wait_time_seconds
-                        )
+                        f"Records are not available yet. Waiting {wait_time_seconds} seconds before trying again."
                     )
                     time.sleep(wait_time_seconds)
             except Exception as e:
                 caught_exception = e
 
                 log.info(
-                    "Error while querying for results. Waiting {} seconds before trying again.".format(
-                        wait_time_seconds
-                    )
+                    f"Error while querying for results. Waiting {wait_time_seconds} seconds before trying again."
                 )
                 time.sleep(wait_time_seconds)
 
@@ -262,8 +258,7 @@ class DatabaseHeartbeatTest(HeartbeatTest):
         )
         if condition:
             log.info("Database test is successful.")
+        elif exception:
+            raise AssertionError(msg) from exception
         else:
-            if exception:
-                raise AssertionError(msg) from exception
-            else:
-                raise AssertionError(msg)
+            raise AssertionError(msg)

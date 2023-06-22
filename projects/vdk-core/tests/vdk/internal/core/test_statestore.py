@@ -23,7 +23,7 @@ def test_statestore_add_new() -> None:
     assert store[key] == "new_value"
 
     # mypy enforces type correctness
-    _ = store[key] + "string"
+    _ = f"{store[key]}string"
 
 
 def test_statestore_delete_key() -> None:
@@ -61,7 +61,7 @@ def test_statestore_multiple_keys() -> None:
     _ = store[key_int] + 3
 
     with pytest.raises(TypeError):
-        _ = store[key_int] + "str"
+        _ = f"{store[key_int]}str"
 
 
 def test_statestore_immutable() -> None:
@@ -99,6 +99,7 @@ def test_statorestore_multiple_statestores() -> None:
 
 
 def test_statestore_classes() -> None:
+
     @dataclass
     class Foo:
         bar: float
@@ -113,7 +114,7 @@ def test_statestore_classes() -> None:
     store[TestStoreKeys.MY_FOO] = Foo(3.14)
 
     with pytest.raises(TypeError):
-        _ = store[TestStoreKeys.MY_INT] + "str"
+        _ = f"{store[TestStoreKeys.MY_INT]}str"
 
 
 def test_statestore_repr() -> None:

@@ -20,4 +20,3 @@ def closing_noexcept_on_close(thing: T) -> T:
             log.info(
                 f"Failed to close {thing}. This is not an issue. Will ignore it and continue. Exception was '{e}'."
             )
-            pass

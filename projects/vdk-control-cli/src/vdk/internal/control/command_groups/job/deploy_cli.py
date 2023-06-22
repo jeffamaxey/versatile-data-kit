@@ -176,11 +176,10 @@ def deploy(
         # default to ask for job version to update
         if not vdk_version and not job_version and enabled is None:
             job_version = get_or_prompt("Job Version", job_version)
-        if job_path:
-            reason = get_or_prompt("Reason", reason)
-            return cmd.create(name, team, job_path, reason, vdk_version, enabled)
-        else:
+        if not job_path:
             return cmd.update(name, team, enabled, job_version, vdk_version)
+        reason = get_or_prompt("Reason", reason)
+        return cmd.create(name, team, job_path, reason, vdk_version, enabled)
     if operation == DeployOperation.REMOVE.value:
         name = get_or_prompt("Job Name", name)
         team = get_or_prompt("Job Team", team)

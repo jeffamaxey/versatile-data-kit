@@ -154,21 +154,20 @@ class VDKConfigFolder:
                 consequence="User won't be able to access Control Service",
                 countermeasure=f"Remove file {self.vdk_config_folder}",
             )
-        else:
-            if not os.path.exists(self.vdk_config_folder) and not os.path.isdir(
-                self.vdk_config_folder
-            ):
-                try:
-                    pathlib.Path(self.vdk_config_folder).mkdir(
-                        parents=True, exist_ok=True
-                    )
-                except Exception as e:
-                    raise VDKException(
-                        what="Configuration folder was not created and user is not logged in",
-                        why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
-                        consequence="User won't be able to access Control Service",
-                        countermeasure=f"Check if the client has write access to: {base_dir}",
-                    )
+        if not os.path.exists(self.vdk_config_folder) and not os.path.isdir(
+            self.vdk_config_folder
+        ):
+            try:
+                pathlib.Path(self.vdk_config_folder).mkdir(
+                    parents=True, exist_ok=True
+                )
+            except Exception as e:
+                raise VDKException(
+                    what="Configuration folder was not created and user is not logged in",
+                    why=f"Cannot create: {self.vdk_config_folder} configuration folder: {str(e)}",
+                    consequence="User won't be able to access Control Service",
+                    countermeasure=f"Check if the client has write access to: {base_dir}",
+                )
 
     def read_configuration(self, section, option, fallback=None):
         try:

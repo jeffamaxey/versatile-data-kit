@@ -75,40 +75,37 @@ class StepFuncFactory:
             sys.path.insert(0, str(step.job_dir))
             filename = step.file_path.name
             namespace = "step_" + str(filename).lower().strip(".py")
-            success = False
-
             try:
-                log.debug("Loading %s ..." % filename)
+                log.debug(f"Loading {filename} ...")
                 python_module = imp.load_source(namespace, str(step.file_path))
-                log.debug("Loading %s SUCCESS" % filename)
+                log.debug(f"Loading {filename} SUCCESS")
             except BaseException as e:
-                log.info("Loading %s FAILURE" % filename)
+                log.info(f"Loading {filename} FAILURE")
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,
-                    what_happened="Failed loading job sources of %s" % filename,
+                    what_happened=f"Failed loading job sources of {filename}",
                     why_it_happened=errors.MSG_WHY_FROM_EXCEPTION(e),
                     consequences=errors.MSG_CONSEQUENCE_TERMINATING_APP,
-                    countermeasures=errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION
-                    + " Most likely importing a dependency or data job step failed, see"
-                    + " logs for details and fix the failed step (details in stacktrace).",
+                    countermeasures=f"{errors.MSG_COUNTERMEASURE_FIX_PARENT_EXCEPTION} Most likely importing a dependency or data job step failed, see logs for details and fix the failed step (details in stacktrace).",
                     exception=e,
                     wrap_in_vdk_error=True,
                 )
 
+            success = False
             for _, func in inspect.getmembers(python_module, inspect.isfunction):
                 if func.__name__ == "run":
                     try:
-                        log.info("Entering %s#run(...) ..." % filename)
+                        log.info(f"Entering {filename}#run(...) ...")
                         StepFuncFactory.invoke_run_function(func, job_input, step.name)
                         success = True
                         return True
                     finally:
                         if success:
-                            log.info("Exiting  %s#run(...) SUCCESS" % filename)
+                            log.info(f"Exiting  {filename}#run(...) SUCCESS")
                             errors.resolvable_context().mark_all_resolved()
                         else:
-                            log.error("Exiting  %s#run(...) FAILURE" % filename)
+                            log.error(f"Exiting  {filename}#run(...) FAILURE")
             log.warn(
                 "File %s does not contain a valid run() method. Nothing to execute. Skipping %s,"
                 + " and continuing with other files (if present).",
@@ -128,13 +125,11 @@ class StepFuncFactory:
         possible_arguments = {
             "job_input": job_input,
         }
-        # enable plugins to add different types of job input
-        actual_arguments = {
+        if actual_arguments := {
             arg_name: arg_value
             for arg_name, arg_value in possible_arguments.items()
             if arg_name in parameter_names
-        }
-        if actual_arguments:
+        }:
             try:
                 func(**actual_arguments)
             except SkipRemainingStepsException as e:
@@ -165,8 +160,8 @@ class StepFuncFactory:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=log,
-                what_happened=f"I'm trying to call method 'run' and failed.",
-                why_it_happened=f"Method is missing at least one job input parameter to be passed",
+                what_happened="I'm trying to call method 'run' and failed.",
+                why_it_happened="Method is missing at least one job input parameter to be passed",
                 consequences="Current Step (python file) will fail, and as a result the whole Data Job will fail. ",
                 countermeasures="Make sure that you have specified a job input parameter in the signature of the "
                 "run method. "

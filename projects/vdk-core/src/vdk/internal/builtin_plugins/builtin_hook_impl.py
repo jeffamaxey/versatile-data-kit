@@ -71,8 +71,7 @@ class RuntimeStateInitializePlugin:
             # Generate attempt id if execution id not present.
             if not execution_id:
                 # UUID is 36 chars
-                attempt_id = f"{str(uuid.uuid4())}-{str(int(time.time()))}-{str(uuid.uuid4())[:5]}"
-            # Use execution id to generate attempt id.
+                attempt_id = f"{str(uuid.uuid4())}-{int(time.time())}-{str(uuid.uuid4())[:5]}"
             else:
                 attempt_id = f"{execution_id}-{str(uuid.uuid4())[:5]}"
             # If env is cloud we must print a warning.

@@ -16,13 +16,7 @@ from werkzeug import Response
 
 
 def test_job_lineage_disabled(tmpdir):
-    with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
-        },
-    ):
+    with mock.patch.dict(os.environ, {"VDK_DB_DEFAULT_TYPE": "SQLITE", "VDK_SQLITE_FILE": f"{str(tmpdir)}vdk-sqlite.db"}):
         runner = CliEntryBasedTestRunner(sqlite_plugin, plugin_lineage)
 
         result: Result = runner.invoke(
@@ -46,14 +40,7 @@ def test_job_lineage(tmpdir, httpserver: PluginHTTPServer):
         uri="/api/v1/lineage", method="POST"
     ).respond_with_handler(handler)
 
-    with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SQLITE",
-            "VDK_SQLITE_FILE": str(tmpdir) + "vdk-sqlite.db",
-            "VDK_OPENLINEAGE_URL": api_url,
-        },
-    ):
+    with mock.patch.dict(os.environ, {"VDK_DB_DEFAULT_TYPE": "SQLITE", "VDK_SQLITE_FILE": f"{str(tmpdir)}vdk-sqlite.db", "VDK_OPENLINEAGE_URL": api_url}):
         runner = CliEntryBasedTestRunner(sqlite_plugin, plugin_lineage)
 
         result: Result = runner.invoke(

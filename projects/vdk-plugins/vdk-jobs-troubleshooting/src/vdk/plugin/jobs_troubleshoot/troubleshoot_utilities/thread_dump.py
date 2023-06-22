@@ -54,12 +54,14 @@ class ThreadDumpHandler(BaseHTTPRequestHandler):
                 )
             code = []
             for threadId, stack in sys._current_frames().items():
-                code.append("# ThreadID: %s" % threadId)
-                for filename, lineno, name, line in traceback.extract_stack(stack):
-                    code.append(
-                        "%s::%d::%s::%s"
-                        % (filename, lineno, name, (line.strip() if line else ""))
+                code.append(f"# ThreadID: {threadId}")
+                code.extend(
+                    "%s::%d::%s::%s"
+                    % (filename, lineno, name, (line.strip() if line else ""))
+                    for filename, lineno, name, line in traceback.extract_stack(
+                        stack
                     )
+                )
             for line in code:
                 log.info(line)
                 self.wfile.write(str.encode(f"\n {line}"))

@@ -37,7 +37,7 @@ def create_ingester_base(kwargs=None, config_dict=None, ingester=None) -> Ingest
         "ingestion_payload_aggregator_timeout_seconds": 2,
     }
     if config_dict is not None:
-        config_key_value_pairs.update(config_dict)
+        config_key_value_pairs |= config_dict
     test_config = Configuration(None, config_key_value_pairs, {})
 
     return IngesterBase(

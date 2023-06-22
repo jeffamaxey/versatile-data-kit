@@ -61,7 +61,7 @@ def test_lineage_not_collected_for_heartbeat_query():
     },
 )
 def test_lineage_for_insert():
-    table_name = "test_table_" + uuid.uuid4().hex
+    table_name = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -73,8 +73,6 @@ def test_lineage_for_insert():
     insert_query = f"insert into {table_name} values('test value')"
     execute_query(runner, insert_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class InsertLineageDataMatcher:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == insert_query
@@ -98,7 +96,7 @@ def test_lineage_for_insert():
     },
 )
 def test_lineage_for_select():
-    table_name = "test_table_" + uuid.uuid4().hex
+    table_name = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -110,8 +108,6 @@ def test_lineage_for_select():
     select_query = f"select * from {table_name}"
     execute_query(runner, select_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class SelectLineageDataMatcher:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == select_query
@@ -136,8 +132,8 @@ def test_lineage_for_select():
     },
 )
 def test_lineage_for_insert_select():
-    table_name_source = "test_tbl_src_" + uuid.uuid4().hex
-    table_name_dest = "test_tbl_dst_" + uuid.uuid4().hex
+    table_name_source = f"test_tbl_src_{uuid.uuid4().hex}"
+    table_name_dest = f"test_tbl_dst_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -152,8 +148,6 @@ def test_lineage_for_insert_select():
     )
     execute_query(runner, insert_select_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class InsertSelectLineageDataMatch:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == insert_select_query
@@ -177,8 +171,8 @@ def test_lineage_for_insert_select():
 )
 def test_lineage_for_insert_select_full_names():
     test_schema = "memory.test_schema"
-    table_name_source = "test_tbl_src_" + uuid.uuid4().hex
-    table_name_dest = "test_tbl_dst_" + uuid.uuid4().hex
+    table_name_source = f"test_tbl_src_{uuid.uuid4().hex}"
+    table_name_dest = f"test_tbl_dst_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -196,8 +190,6 @@ def test_lineage_for_insert_select_full_names():
     insert_select_query = f"insert into {test_schema}.{table_name_dest} select * from {test_schema}.{table_name_source}"
     execute_query(runner, insert_select_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class InsertSelectLineageDataMatch:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == insert_select_query
@@ -224,8 +216,8 @@ def test_lineage_for_insert_select_full_names():
     },
 )
 def test_lineage_for_rename_table():
-    table_name_from = "test_table_" + uuid.uuid4().hex
-    table_name_to = "test_table_" + uuid.uuid4().hex
+    table_name_from = f"test_table_{uuid.uuid4().hex}"
+    table_name_to = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -237,8 +229,6 @@ def test_lineage_for_rename_table():
     rename_query = f"alter table {table_name_from} rename to {table_name_to}"
     execute_query(runner, rename_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class RenameTableLineageDataMatch:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == rename_query
@@ -262,8 +252,8 @@ def test_lineage_for_rename_table():
 )
 def test_lineage_for_rename_table_full_names():
     test_schema = "memory.test_schema"
-    table_name_from = "test_table_" + uuid.uuid4().hex
-    table_name_to = "test_table_" + uuid.uuid4().hex
+    table_name_from = f"test_table_{uuid.uuid4().hex}"
+    table_name_to = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -278,8 +268,6 @@ def test_lineage_for_rename_table_full_names():
     rename_query = f"alter table {test_schema}.{table_name_from} rename to {test_schema}.{table_name_to}"
     execute_query(runner, rename_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class RenameTableLineageDataMatch:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == rename_query
@@ -306,8 +294,8 @@ def test_lineage_for_rename_table_full_names():
     },
 )
 def test_lineage_for_rename_table_if_exists():
-    table_name_from = "test_table_" + uuid.uuid4().hex
-    table_name_to = "test_table_" + uuid.uuid4().hex
+    table_name_from = f"test_table_{uuid.uuid4().hex}"
+    table_name_to = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(
@@ -321,8 +309,6 @@ def test_lineage_for_rename_table_if_exists():
     )
     execute_query(runner, rename_query)
 
-    # the lineage data is different on every run of the test,
-    # so we need this class to generalize the dict which is to be matched
     class RenameTableLineageDataMatch:
         def __eq__(self, lineage_data: LineageData):
             assert lineage_data.query == rename_query
@@ -345,7 +331,7 @@ def test_lineage_for_rename_table_if_exists():
     },
 )
 def test_lineage_not_collected_for_some_queries():
-    table_name = "test_table_" + uuid.uuid4().hex
+    table_name = f"test_table_{uuid.uuid4().hex}"
 
     mock_lineage_logger = mock.MagicMock(ILineageLogger)
     runner = CliEntryBasedTestRunner(

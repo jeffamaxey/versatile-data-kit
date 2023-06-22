@@ -59,13 +59,9 @@ class TemplatesImpl(ITemplateRegistry, ITemplate):
                     errors.ResolvableBy.PLATFORM_ERROR,
                     logging.getLogger(__name__),
                     f"Template `{name}` failed.",
-                    f"No exception is reported. This is not expected. "
-                    f"Execution steps of templates were {result.steps_list}",
+                    f"No exception is reported. This is not expected. Execution steps of templates were {result.steps_list}",
                     "We will raise an exception now. Likely the job will fail.",
-                    f"Check out the error and fix the template invocation "
-                    f"or fix the template by installing the correct plugin."
-                    f" Or open an issue on the support team or "
-                    f"Versatile Data Kit or the plugin provider of the template",
+                    'Check out the error and fix the template invocation or fix the template by installing the correct plugin. Or open an issue on the support team or Versatile Data Kit or the plugin provider of the template',
                 )
         return result
 

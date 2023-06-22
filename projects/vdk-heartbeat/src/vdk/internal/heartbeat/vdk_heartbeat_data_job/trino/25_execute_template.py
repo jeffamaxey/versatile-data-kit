@@ -14,7 +14,7 @@ def run(job_input):
     # must be placed before that.
 
     if job_input.get_property("execute_template") == "False":
-        log.info(f"Skipping Trino template execution test.")
+        log.info("Skipping Trino template execution test.")
         return
 
     ts = uuid.uuid4().hex

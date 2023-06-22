@@ -35,10 +35,7 @@ class CliRunImpl:
     @staticmethod
     def __validate_and_parse_args(arguments: str) -> Optional[Dict]:
         try:
-            if arguments:
-                return json.loads(arguments)
-            else:
-                return None
+            return json.loads(arguments) if arguments else None
         except Exception as e:
             blamee = errors.ResolvableBy.USER_ERROR
             errors.log_and_rethrow(
@@ -63,8 +60,8 @@ class CliRunImpl:
         """
         quotient, remainder = divmod(len(exec_steps), chunks)
         for i in range(chunks):
-            subsequent_iteration = (quotient + 1) * (
-                i if i < remainder else remainder
+            subsequent_iteration = (quotient + 1) * min(
+                i, remainder
             ) + quotient * (0 if i < remainder else i - remainder)
             yield exec_steps[
                 subsequent_iteration : subsequent_iteration
@@ -96,9 +93,7 @@ class CliRunImpl:
                 return
 
             pattern = r"^\d+\.\d+"
-            version_match = re.match(pattern, configured_python_version)
-
-            if version_match:
+            if version_match := re.match(pattern, configured_python_version):
                 extracted_configured_version = version_match.group()
                 if extracted_configured_version != local_py_version:
                     log.warning(

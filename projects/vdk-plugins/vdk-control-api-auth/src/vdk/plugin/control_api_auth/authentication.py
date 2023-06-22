@@ -121,12 +121,11 @@ class Authentication:
                 countermeasure="Specify client_id and auth_discovery_url and "
                 "repeat the login operation.",
             )
-        else:
-            auth_code_flow = RedirectAuthentication(
-                client_id=self._client_id,
-                client_secret=self._client_secret,
-                oauth2_discovery_url=self._auth_discovery_url,
-                oauth2_exchange_url=self._auth_url,
-                auth=self._auth,
-            )
-            auth_code_flow.authentication_process()
+        auth_code_flow = RedirectAuthentication(
+            client_id=self._client_id,
+            client_secret=self._client_secret,
+            oauth2_discovery_url=self._auth_discovery_url,
+            oauth2_exchange_url=self._auth_url,
+            auth=self._auth,
+        )
+        auth_code_flow.authentication_process()

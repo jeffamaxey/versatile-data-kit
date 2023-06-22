@@ -11,8 +11,7 @@ __copyright__ = (
 
 def run(job_input: IJobInput) -> None:
     template_args = job_input.get_arguments()
-    check = template_args.get("check")
-    if check:
+    if check := template_args.get("check"):
         check = test_utility.setup_testing_check(check)
         template_args["check"] = check
 

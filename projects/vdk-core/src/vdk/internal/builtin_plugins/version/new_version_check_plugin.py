@@ -56,8 +56,9 @@ class NewVersionCheckPlugin:
         try:
             package_list = []
             cfg = context.configuration
-            is_disabled = cfg.get_value(ConfigKey.VERSION_CHECK_DISABLED.value)
-            if is_disabled:
+            if is_disabled := cfg.get_value(
+                ConfigKey.VERSION_CHECK_DISABLED.value
+            ):
                 log.debug(
                     "VERSION_CHECK_DISABLED is set to true, skipping version check."
                 )
@@ -74,10 +75,11 @@ class NewVersionCheckPlugin:
 
             if cfg.get_value(ConfigKey.VERSION_CHECK_PLUGINS.value):
                 log.debug("Will check for newer versions for all installed plugins.")
-                for dist_name, _ in version.list_installed_plugins():
-                    if new_package(dist_name, package_index).check():
-                        package_list.append(dist_name)
-
+                package_list.extend(
+                    dist_name
+                    for dist_name, _ in version.list_installed_plugins()
+                    if new_package(dist_name, package_index).check()
+                )
             self._print_new_version_message(package_list, package_index)
         except Exception as e:
             log.debug(

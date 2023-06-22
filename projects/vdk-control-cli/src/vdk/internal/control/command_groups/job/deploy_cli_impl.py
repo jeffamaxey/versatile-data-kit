@@ -44,8 +44,7 @@ class JobDeploy:
     @staticmethod
     def __detect_keytab_files_in_job_directory(job_path: str) -> None:
         keytab_glob = os.path.join(job_path, "**/*.keytab")
-        keytab_files = glob.glob(keytab_glob, recursive=True)
-        if keytab_files:
+        if keytab_files := glob.glob(keytab_glob, recursive=True):
             raise VDKException(
                 what=f"Detected keytab file inside data job directory.: {keytab_files}",
                 why="Keytab files are secret and must be kept separate - usually at the same level as data job directory but not inside.",
@@ -101,9 +100,7 @@ class JobDeploy:
     def __archive_binary(job_archive_path: str) -> bytes:
         log.debug(f"Read archive binary: {job_archive_path}")
         with open(job_archive_path, "rb") as job_archive_file:
-            # Read the whole file at once
-            job_archive_binary = job_archive_file.read()
-            return job_archive_binary
+            return job_archive_file.read()
 
     @staticmethod
     def __cleanup_archive(archive_path: str) -> None:
@@ -170,7 +167,7 @@ class JobDeploy:
         elif enabled is not None:
             self.__patch_deployment(name, team, deployment)
             msg = f"Deployment of Data Job {name} updated; "
-            msg = msg + "status: " + ("enabled" if enabled else "disabled") + "; "
+            msg = f"{msg}status: " + ("enabled" if enabled else "disabled") + "; "
             log.info(msg)
         else:
             log.warning(f"Nothing to update for deployment of job {name}.")
@@ -245,9 +242,7 @@ class JobDeploy:
                     "deploying to verify your deployment was successful."
                 )
                 click.echo("")
-                self.__printer.print_table(list(deployments))
-            else:
-                self.__printer.print_table(list(deployments))
+            self.__printer.print_table(list(deployments))
         else:
             self.__printer.print_table(None)
 

@@ -12,7 +12,7 @@ class JobDataLoader:
     """
 
     def __init__(self, working_directory: str):
-        self._path = pathlib.Path(os.getcwd() + "/" + working_directory)
+        self._path = pathlib.Path(f"{os.getcwd()}/{working_directory}")
         self._config = JobConfig(self._path)
 
     def get_job_path(self) -> str:
@@ -22,6 +22,4 @@ class JobDataLoader:
         return os.path.basename(self._path)
 
     def get_team_name(self) -> str:
-        if self._config:
-            return self._config.get_team()
-        return ""
+        return self._config.get_team() if self._config else ""

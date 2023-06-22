@@ -38,7 +38,7 @@ class SqLite3MemoryDb:
         self, temp_directory: pathlib.Path = pathlib.Path(tempfile.gettempdir())
     ):
         self.__db_name = str(uuid.uuid4())
-        self.__db_file = temp_directory.joinpath(self.__db_name + ".db")
+        self.__db_file = temp_directory.joinpath(f"{self.__db_name}.db")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__clean_up()
@@ -51,7 +51,6 @@ class SqLite3MemoryDb:
             self.__db_file.unlink(missing_ok=True)
         except:
             log.warning(f"cannot delete file {self.__db_file}")
-            pass
 
     def new_connection(self):
         import sqlite3
@@ -115,8 +114,7 @@ class TestPropertiesServiceClient(IPropertiesServiceClient):
         self._props = {}
 
     def read_properties(self, job_name: str, team_name: str) -> Dict:
-        res = deepcopy(self._props.get(job_name, {}))
-        return res
+        return deepcopy(self._props.get(job_name, {}))
 
     def write_properties(self, job_name: str, team_name: str, properties: Dict) -> Dict:
         self._props[job_name] = deepcopy(properties)

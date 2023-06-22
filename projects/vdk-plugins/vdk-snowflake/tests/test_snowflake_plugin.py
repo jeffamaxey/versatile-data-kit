@@ -28,18 +28,18 @@ def test_snowflake_plugin(mocked_connection):
     and its general setup work as expected.
     """
     with mock.patch.dict(
-        os.environ,
-        {
-            "VDK_DB_DEFAULT_TYPE": "SNOWFLAKE",
-            "VDK_SNOWFLAKE_ACCOUNT": "testaccount",
-            "VDK_SNOWFLAKE_USER": "testuser",
-            "VDK_SNOWFLAKE_PASSWORD": "testpassword",
-        },
-    ):
+            os.environ,
+            {
+                "VDK_DB_DEFAULT_TYPE": "SNOWFLAKE",
+                "VDK_SNOWFLAKE_ACCOUNT": "testaccount",
+                "VDK_SNOWFLAKE_USER": "testuser",
+                "VDK_SNOWFLAKE_PASSWORD": "testpassword",
+            },
+        ):
         runner = CliEntryBasedTestRunner(snowflake_plugin)
 
         query_result: Result = runner.invoke(
-            ["snowflake-query", "--query", f"SELECT 1"]
+            ["snowflake-query", "--query", "SELECT 1"]
         )
 
         cli_assert_equal(0, query_result)

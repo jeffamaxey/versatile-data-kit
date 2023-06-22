@@ -49,8 +49,7 @@ class VdkAioKerberosClient(AIOKerberosClient):
 
         logger.debug("Generating initial TGT without authentication data")
         now = datetime.datetime.now(datetime.timezone.utc)
-        kdc_req_body = {}
-        kdc_req_body["kdc-options"] = KDCOptions(set(kdcopts))
+        kdc_req_body = {"kdc-options": KDCOptions(set(kdcopts))}
         kdc_req_body["cname"] = PrincipalName(
             {
                 "name-type": NAME_TYPE.PRINCIPAL.value,
@@ -74,19 +73,18 @@ class VdkAioKerberosClient(AIOKerberosClient):
         else:
             kdc_req_body["etype"] = override_etype
 
-        pa_data_1 = {}
-        pa_data_1["padata-type"] = int(PADATA_TYPE("PA-PAC-REQUEST"))
+        pa_data_1 = {"padata-type": int(PADATA_TYPE("PA-PAC-REQUEST"))}
         pa_data_1["padata-value"] = PA_PAC_REQUEST({"include-pac": True}).dump()
 
-        kdc_req = {}
-        kdc_req["pvno"] = krb5_pvno
-        kdc_req["msg-type"] = MESSAGE_TYPE.KRB_AS_REQ.value
-        kdc_req["padata"] = [pa_data_1]
-        kdc_req["req-body"] = KDC_REQ_BODY(kdc_req_body)
-
+        kdc_req = {
+            "pvno": krb5_pvno,
+            "msg-type": MESSAGE_TYPE.KRB_AS_REQ.value,
+            "padata": [pa_data_1],
+            "req-body": KDC_REQ_BODY(kdc_req_body),
+        }
         req = AS_REQ(kdc_req)
 
-        logger.debug("Sending initial TGT to %s" % self.ksoc.get_addr_str())
+        logger.debug(f"Sending initial TGT to {self.ksoc.get_addr_str()}")
         rep = await self.ksoc.sendrecv(req.dump())
 
         if rep.name != "KRB_ERROR":
@@ -132,12 +130,6 @@ class VdkAioKerberosClient(AIOKerberosClient):
             ) = self.decrypt_asrep_cert(rep)
             self.kerberos_cipher_type = supported_encryption_method.value
 
-            self.ccache.add_tgt(
-                self.kerberos_TGT, self.kerberos_TGT_encpart, override_pp=True
-            )
-            logger.debug("Got valid TGT")
-            return
-
         else:
             cipherText = self.kerberos_TGT["enc-part"][
                 "cipher"
@@ -158,9 +150,9 @@ class VdkAioKerberosClient(AIOKerberosClient):
                 self.kerberos_cipher.enctype,
                 self.kerberos_TGT_encpart["key"]["keyvalue"],
             )
-            self.ccache.add_tgt(
-                self.kerberos_TGT, self.kerberos_TGT_encpart, override_pp=True
-            )
-            logger.debug("Got valid TGT")
 
-            return
+        self.ccache.add_tgt(
+            self.kerberos_TGT, self.kerberos_TGT_encpart, override_pp=True
+        )
+        logger.debug("Got valid TGT")
+        return

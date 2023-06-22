@@ -89,7 +89,7 @@ class ConcurrentExecutionChecker:
 def _skip_job_run(job_name) -> None:
     log.info(f"Data job: {job_name} is already running in K8S.")
     log.info(
-        f"Skipping execution and exiting. You can retry the job when it finishes executing in K8S."
+        "Skipping execution and exiting. You can retry the job when it finishes executing in K8S."
     )
     os._exit(0)
 
@@ -113,11 +113,9 @@ def _skip_job_if_necessary(
 
         vdk_cfg = VDKConfig()
         job_checker = ConcurrentExecutionChecker(vdk_cfg.control_service_rest_api_url)
-        job_running = job_checker.is_job_execution_running(
+        if job_running := job_checker.is_job_execution_running(
             job_name, job_team, execution_id
-        )
-
-        if job_running:
+        ):
             log.info(f"Skipping job {job_name}")
             writer_plugin = TerminationMessageWriterPlugin()
             writer_plugin.write_termination_message(

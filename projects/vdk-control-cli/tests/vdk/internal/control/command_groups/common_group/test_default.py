@@ -17,7 +17,7 @@ EXPECTED_CONFIG_PATH = os.path.join(
 
 def test_set_default_flow():
     # Setup
-    test_team_name = "test-set-team-" + str(time.time())
+    test_team_name = f"test-set-team-{str(time.time())}"
     team_name_config_content = f"team-name = {test_team_name}"
 
     # Run

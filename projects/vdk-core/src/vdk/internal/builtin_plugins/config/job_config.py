@@ -174,11 +174,11 @@ class JobConfig:
         return success
 
     def _get_contacts(self, key):
-        contacts_str = self._get_value("contacts", key).strip()
-        contacts = []
-        if contacts_str:
-            contacts = [x.strip() for x in re.split("[;,]", contacts_str)]
-        return contacts
+        return (
+            [x.strip() for x in re.split("[;,]", contacts_str)]
+            if (contacts_str := self._get_value("contacts", key).strip())
+            else []
+        )
 
     def _get_boolean(self, section, key, fallback=None) -> bool:
         return self._config_ini.getboolean(section, key, fallback=fallback)

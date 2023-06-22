@@ -20,9 +20,7 @@ def find_test_resource(resource_relative_path, throw_if_not_found=True):
     folder_test_resources = dirname(getabsfile(UNUSED))
     if not exists(folder_test_resources):
         raise Exception(
-            "Bug! Folder test-resources does not exist at {}".format(
-                folder_test_resources
-            )
+            f"Bug! Folder test-resources does not exist at {folder_test_resources}"
         )
     res = join(folder_test_resources, resource_relative_path)
     res = abspath(res)
@@ -49,7 +47,7 @@ def disable_vdk_authentication():
 
 
 def get_json_response_mock():
-    json_response_mock = {
+    return {
         "id_token": "",
         "token_type": "bearer",
         "expires_in": 1799,
@@ -57,4 +55,3 @@ def get_json_response_mock():
         "access_token": "axczfe12casASDCz",
         "refresh_token": "refresh",
     }
-    return json_response_mock

@@ -87,7 +87,7 @@ def json_format(data, indent=None):
 
         if isinstance(obj, (datetime, date)):
             return obj.isoformat()
-        raise TypeError("Type %s not serializable" % type(obj))
+        raise TypeError(f"Type {type(obj)} not serializable")
 
     return json.dumps(data, default=json_serial, indent=indent)
 
@@ -115,11 +115,10 @@ def create_printer(output_format: str) -> Printer:
     :return: An instance of a Printer subclass that can print data in the desired format.
 
     """
-    if output_format.lower() in _registered_printers:
-        printer_class = _registered_printers[output_format.lower()]
-        return printer_class()
-    else:
+    if output_format.lower() not in _registered_printers:
         raise ValueError(f"Printer for output format {output_format} not registered")
+    printer_class = _registered_printers[output_format.lower()]
+    return printer_class()
 
 
 @unique

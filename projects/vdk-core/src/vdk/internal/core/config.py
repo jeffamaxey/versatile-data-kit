@@ -34,7 +34,7 @@ def convert_value_to_type_of_default_type(
                     f'"{key}={v}" is invalid. Allowed values for {key} are {allowed_values}'
                 )
                 raise VdkConfigurationError(msg)
-            v = str(v).lower() in ["true", "1", "yes", "y"]
+            v = str(v).lower() in {"true", "1", "yes", "y"}
         else:
             try:
                 v = type(default_value)(v)  # cast to type of default_value:
@@ -81,8 +81,7 @@ class Configuration:
         """
         key = _normalize_config_key(key)
         default_value = self.__config_key_to_default_value.get(key)
-        value = self.__config_key_to_value.get(key, default_value)
-        return value
+        return self.__config_key_to_value.get(key, default_value)
 
     def get_required_value(self, key: ConfigKey) -> ConfigValue:
         """
@@ -130,7 +129,7 @@ class Configuration:
 
         :return: list of key names.
         """
-        return [k for k in self.__config_key_to_default_value.keys()]
+        return list(self.__config_key_to_default_value.keys())
 
 
 @dataclass()
@@ -148,10 +147,10 @@ class ConfigurationBuilder:
     __config_key_to_sensitive: dict[ConfigKey, bool]
 
     def __init__(self):
-        self.__config_key_to_description = dict()
-        self.__config_key_to_default_value = dict()
-        self.__config_key_to_value = dict()
-        self.__config_key_to_sensitive = dict()
+        self.__config_key_to_description = {}
+        self.__config_key_to_default_value = {}
+        self.__config_key_to_value = {}
+        self.__config_key_to_sensitive = {}
 
     def add(
         self,
@@ -207,7 +206,7 @@ class ConfigurationBuilder:
 
         :return: list of key names.
         """
-        return [k for k in self.__config_key_to_default_value.keys()]
+        return list(self.__config_key_to_default_value.keys())
 
     def __add_public(
         self,
@@ -220,7 +219,7 @@ class ConfigurationBuilder:
             log.warning(
                 f"Description for key {key} is not of type string. Converting to type string."
             )
-            description = str(description)
+            description = description
 
         if default_value is not None:
             description += "\nDefault value is: '%s'." % default_value

@@ -26,17 +26,22 @@ from vdk.plugin.test_utils.util_funcs import CliEntryBasedTestRunner
 def test_run_check_attempt_execution_op_id_are_set_correctly():
     actual_ids = []
 
+
+
     class PrintIdPlugin:
         @hookimpl(tryfirst=True)
         def run_job(self, context: JobContext) -> Optional[ExecutionResult]:
-            actual_ids.append(
-                context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID)
+            actual_ids.extend(
+                (
+                    context.core_context.state.get(CommonStoreKeys.ATTEMPT_ID),
+                    context.core_context.state.get(
+                        CommonStoreKeys.EXECUTION_ID
+                    ),
+                    context.core_context.state.get(CommonStoreKeys.OP_ID),
+                )
             )
-            actual_ids.append(
-                context.core_context.state.get(CommonStoreKeys.EXECUTION_ID)
-            )
-            actual_ids.append(context.core_context.state.get(CommonStoreKeys.OP_ID))
             return None  # continue with next hook impl.
+
 
     runner = CliEntryBasedTestRunner(PrintIdPlugin())
 

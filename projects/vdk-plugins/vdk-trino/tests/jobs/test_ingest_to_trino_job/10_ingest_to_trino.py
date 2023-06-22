@@ -13,7 +13,7 @@ def run(job_input):
         "decimal_data": "3.2",
     }
 
-    for i in range(5):
+    for _ in range(5):
         job_input.send_object_for_ingestion(
             payload=payload, destination_table="test_table"
         )

@@ -154,7 +154,7 @@ class StandaloneDataJob(IStandaloneDataJob):
                 exception=exc_value
             )
             # if at least one hook implementation returned handled, means we do not need to log the exception
-            if not (True in handled):
+            if True not in handled:
                 log.exception("Exiting with exception.")
                 exit_code = 2
             else:

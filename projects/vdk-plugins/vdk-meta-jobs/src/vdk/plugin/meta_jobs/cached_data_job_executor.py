@@ -36,7 +36,7 @@ class TrackingDataJobExecutor:
         :param time_between_status_check_seconds: the number of seconds between status check
         """
         self._executor = executor
-        self._jobs_cache: Dict[str, TrackableJob] = dict()
+        self._jobs_cache: Dict[str, TrackableJob] = {}
         self._time_between_status_check_seconds = time_between_status_check_seconds
 
     def register_job(self, job: TrackableJob):
@@ -142,7 +142,6 @@ class TrackingDataJobExecutor:
         """
         :return: list of the names of all the finalized jobs
         """
-        finalized_jobs = []
         # TODO: optimize
         # Do not call the status every time (use TTL caching)
         # Do not call all status at the same time - stagger them in time
@@ -157,10 +156,12 @@ class TrackingDataJobExecutor:
                 job.last_status_time = time.time()
                 job.status = self.status(job.job_name)
 
-        for job in self._jobs_cache.values():
-            if self.__is_job_submitted(job) and job.status not in ACTIVE_JOB_STATUSES:
-                finalized_jobs.append(job.job_name)
-        return finalized_jobs
+        return [
+            job.job_name
+            for job in self._jobs_cache.values()
+            if self.__is_job_submitted(job)
+            and job.status not in ACTIVE_JOB_STATUSES
+        ]
 
     def get_all_jobs(self):
         """
@@ -205,8 +206,7 @@ class TrackingDataJobExecutor:
 
         while current_retries < ALLOWED_RETRIES:
             try:
-                execution_id = self._executor.start_job(job_name, team_name, arguments)
-                return execution_id
+                return self._executor.start_job(job_name, team_name, arguments)
             except url_exception.TimeoutError as e:
                 log.info(
                     f"A timeout exception occurred while starting the {job_name} data job. "
@@ -218,9 +218,8 @@ class TrackingDataJobExecutor:
                 )
                 if execution_id and execution_id != latest_available_execution_id:
                     return execution_id
-                else:
-                    current_retries += 1
-                    time.sleep(SLEEP_TIME)  # Sleep for 10 seconds before re-try.
+                current_retries += 1
+                time.sleep(SLEEP_TIME)  # Sleep for 10 seconds before re-try.
 
         # If the execution reaches this point, then something has happened,
         # and the state of the data job that has been started cannot be determined.
@@ -240,12 +239,12 @@ class TrackingDataJobExecutor:
         :return: The execution_id of the latest job execution or None if no
                  executions are available.
         """
-        latest_execution_id = None
-        executions_list = self._executor.job_executions_list(
-            job_name=job_name, team_name=team
+        return (
+            executions_list[-1].id
+            if (
+                executions_list := self._executor.job_executions_list(
+                    job_name=job_name, team_name=team
+                )
+            )
+            else None
         )
-
-        if executions_list:
-            # We need only the latest execution which is the last element of the list
-            latest_execution_id = executions_list[-1].id
-        return latest_execution_id

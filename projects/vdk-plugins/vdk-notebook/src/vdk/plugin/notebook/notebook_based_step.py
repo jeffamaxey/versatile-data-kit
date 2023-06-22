@@ -70,13 +70,13 @@ class NotebookStepFuncFactory:
             sys.path.insert(0, str(step.job_dir))
             success = False
             try:
-                log.debug("Loading %s ..." % step.name)
+                log.debug(f"Loading {step.name} ...")
                 step.module.job_input = job_input
                 exec(step.source, step.module.__dict__)
-                log.debug("Loading %s SUCCESS" % step.name)
+                log.debug(f"Loading {step.name} SUCCESS")
                 success = True
             except SyntaxError as e:
-                log.info("Loading %s FAILURE" % step.name)
+                log.info(f"Loading {step.name} FAILURE")
                 errors.log_and_rethrow(
                     to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                     log=log,

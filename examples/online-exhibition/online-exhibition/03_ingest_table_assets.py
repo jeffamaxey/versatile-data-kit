@@ -44,7 +44,7 @@ def run(job_input: IJobInput):
             destination_table="assets",
             column_names=df.columns.tolist(),
         )
-        start = start + rows
+        start += rows
 
     # df = pd.read_csv(url, dtype=dtypes).replace("'", "''", regex=True)
 

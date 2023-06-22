@@ -48,7 +48,7 @@ class ImpalaConnection(ManagedConnectionBase):
         self._retries = retries
 
     def _connect(self):
-        conn = impala_connect(
+        return impala_connect(
             host=self._host,
             port=self._port,
             database=self._database,
@@ -65,5 +65,3 @@ class ImpalaConnection(ManagedConnectionBase):
             auth_cookie_names=self._auth_cookie_names,
             retries=self._retries,
         )
-
-        return conn

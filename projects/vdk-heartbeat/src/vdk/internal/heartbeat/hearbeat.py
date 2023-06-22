@@ -52,5 +52,4 @@ def create_test_instance(config: Config) -> HeartbeatBaseTest:
     log.info(
         f"Run test instance: {config.database_test_module_name}.{config.database_test_class_name}"
     )
-    instance = class_(config)
-    return instance
+    return class_(config)

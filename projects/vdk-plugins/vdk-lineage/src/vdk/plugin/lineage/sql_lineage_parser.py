@@ -84,10 +84,7 @@ def get_table_lineage_from_query(
 def _lineage_table_from_name(
     table: Table, default_schema: str, default_catalog: str
 ) -> LineageTable:
-    tokens = []
-    if table.schema:
-        tokens = table.schema.raw_name.split(".")
-
+    tokens = table.schema.raw_name.split(".") if table.schema else []
     if len(tokens) == 0:
         return LineageTable(default_catalog, default_schema, table.raw_name)
     elif len(tokens) == 1:

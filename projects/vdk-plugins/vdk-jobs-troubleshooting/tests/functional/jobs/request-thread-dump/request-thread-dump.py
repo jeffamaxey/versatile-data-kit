@@ -10,10 +10,10 @@ def run(job_input: IJobInput):
         try:
             response = requests.get(f"http://localhost:{target_port}/threads")
             if response.status_code != 200:
-                target_port = target_port + 1
+                target_port += 1
                 continue
         except Exception:
-            target_port = target_port + 1
+            target_port += 1
             continue
         print(response.status_code)
         print(response.text)

@@ -70,7 +70,7 @@ class TestTemplates(unittest.TestCase):
     def setUp(self) -> None:
         self.__runner = CliEntryBasedTestRunner(trino_plugin)
         self.__schema = f"source_{uuid.uuid4().hex[:10]}"
-        self.__trino_query("create schema " + self.__schema)
+        self.__trino_query(f"create schema {self.__schema}")
 
     def test_scd1_template(self) -> None:
         source_schema = self.__schema
@@ -200,7 +200,7 @@ class TestTemplates(unittest.TestCase):
         # Check if we got the expected result and successfully dropped backup
         self.__scd2_template_check_expected_res(test_schema, target_table, expect_table)
         cli_assert_equal(
-            1, self.__template_table_exists(test_schema, "backup_" + target_table)
+            1, self.__template_table_exists(test_schema, f"backup_{target_table}")
         )
 
     def test_scd2_template_using_rename_strategy(self) -> None:
@@ -226,7 +226,7 @@ class TestTemplates(unittest.TestCase):
             test_schema, target_table, expect_table, "reserved"
         )
         cli_assert_equal(
-            1, self.__template_table_exists(test_schema, "backup_" + target_table)
+            1, self.__template_table_exists(test_schema, f"backup_{target_table}")
         )
 
     def test_scd2_template_restore_target_from_backup_on_start(self) -> None:
@@ -497,7 +497,7 @@ class TestTemplates(unittest.TestCase):
         restore_from_backup=False,
         reserved=False,
     ):
-        value_column_1 = reserved and "with" or "updated_by_user_id"
+        value_column_1 = "with" if reserved else "updated_by_user_id"
         return self.__runner.invoke(
             [
                 "run",

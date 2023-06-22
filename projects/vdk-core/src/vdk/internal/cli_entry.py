@@ -58,8 +58,7 @@ def build_configuration(plugin_registry) -> Configuration:
     cast(CoreHookSpecs, plugin_registry.hook()).vdk_configure(
         config_builder=conf_builder
     )
-    configuration = conf_builder.build()
-    return configuration
+    return conf_builder.build()
 
 
 def setup_cli_commands(plugin_registry: IPluginRegistry, root_command: click.Group):
@@ -91,15 +90,13 @@ class CliEntry:
         program_name: str,
         core_context: CoreContext,
     ) -> int:
-        # arguments passed are propagated to click.core.main
-        exit_code = root_command(
+        return root_command(
             args=command_line_args,
             prog_name=program_name,
             complete_var=None,
             standalone_mode=True,
             obj=core_context,
         )
-        return exit_code
 
     @hookimpl(trylast=True)
     def vdk_main(
@@ -152,7 +149,7 @@ class CliEntry:
             )
             # if at least one hook implementation returned handled, means we do
             # not need to log the exception
-            if not (True in handled):
+            if True not in handled:
                 log.exception("Exiting with exception.")
                 exit_code = 1
             else:

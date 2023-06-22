@@ -55,7 +55,7 @@ class ImpalaErrorHandler:
             errors.log_and_throw(
                 to_be_fixed_by=errors.ResolvableBy.USER_ERROR,
                 log=self._log,
-                what_happened="An Impala Pool Error occured: " + str(caught_exception),
+                what_happened=f"An Impala Pool Error occured: {str(caught_exception)}",
                 why_it_happened="Review the contents of the exception.",
                 consequences="The queries will not be executed.",
                 countermeasures=(
@@ -64,9 +64,9 @@ class ImpalaErrorHandler:
                 ),
             )
 
-        is_handled = False
         # try to handle multiple failed to open file errors in one query for different tables
         current_exception = caught_exception
+        is_handled = False
         while recovery_cursor.get_retries() < self._num_retries:
             self._log.info(
                 f"Try ({(recovery_cursor.get_retries() + 1)} of {self._num_retries}) "
@@ -84,12 +84,7 @@ class ImpalaErrorHandler:
             or current_exception.args != caught_exception.args
         ):
             self._log.warning(
-                "Query failed with an exception. We tried handling and resolving the original error: "
-                + f"({(type(caught_exception))}) by retrying the query "
-                f"({(recovery_cursor.get_retries())}) times. "
-                + "Another exception occurred during handling of the above mentioned error. "
-                + "Throwing the exception which occurred during the latest retry of the original error. "
-                + "For more information on both errors check the stack trace bellow: "
+                f"Query failed with an exception. We tried handling and resolving the original error: ({type(caught_exception)}) by retrying the query ({recovery_cursor.get_retries()}) times. Another exception occurred during handling of the above mentioned error. Throwing the exception which occurred during the latest retry of the original error. For more information on both errors check the stack trace bellow: "
             )
             raise current_exception
         return is_handled
@@ -139,8 +134,8 @@ class ImpalaErrorHandler:
                 "Detected query failing with Failed to find file error. WIll try to autorecover."
             )
             if results and len(results.groups()) == 2:
-                database = results.group(1)
-                table = results.group(2)
+                database = results[1]
+                table = results[2]
                 self._log.info(
                     "Query failed with with Failed to find file error. "
                     "This is most likely due to delay metadata sync from compaction. "
@@ -151,13 +146,9 @@ class ImpalaErrorHandler:
                 # Try refreshing the table metadata several times,
                 # and if the issue is not fixed invalidate the metadata.
                 if recovery_cursor.get_retries() > 3:
-                    recovery_cursor.execute(
-                        "invalidate metadata `" + database + "`.`" + table + "`"
-                    )
+                    recovery_cursor.execute(f"invalidate metadata `{database}`.`{table}`")
                 else:
-                    recovery_cursor.execute(
-                        "refresh `" + database + "`.`" + table + "`"
-                    )
+                    recovery_cursor.execute(f"refresh `{database}`.`{table}`")
                     time.sleep(
                         2 ** recovery_cursor.get_retries() * 30
                     )  # exponential backoff 30s, 60s, 2m, 4m, 8m
@@ -282,9 +273,7 @@ class ImpalaErrorHandler:
                 ".*AnalysisException: Could not resolve table reference: '(\\S+)'.*"
             )
 
-        if (
-            pattern_for_the_table_name
-        ):  # then one of the exceptions matched and we can handle with invalidate
+        if pattern_for_the_table_name:  # then one of the exceptions matched and we can handle with invalidate
             sleep_seconds = 2 ** recovery_cursor.get_retries() * 30
             self._log.info(
                 f"Query failed with: {exception.__class__} : {str(exception)}"
@@ -295,7 +284,7 @@ class ImpalaErrorHandler:
             matcher = re.compile(pattern=pattern_for_the_table_name)
             results = matcher.search(str(exception).strip())
             if results and len(results.groups()) == 1:
-                fully_qualified_table_name = results.group(1)
+                fully_qualified_table_name = results[1]
                 # invalidate the metadata for the missing table
                 recovery_cursor.execute(
                     f"invalidate metadata {fully_qualified_table_name}"
@@ -346,7 +335,7 @@ class ImpalaErrorHandler:
                 matcher = re.compile(pattern=pattern_for_the_table_name)
                 results = matcher.search(str(exception_to_match).strip())
                 if results and len(results.groups()) == 1:
-                    fully_qualified_table_name = results.group(1)
+                    fully_qualified_table_name = results[1]
 
                     # Data Mart name may not be available from the exception message, so we need to extract it
                     # from the query.
@@ -358,14 +347,13 @@ class ImpalaErrorHandler:
                                 ),
                                 recovery_cursor.get_managed_operation().get_operation(),
                                 re.IGNORECASE,
-                            ).group(1)
+                            )[1]
                             fully_qualified_table_name = (
                                 f"{schema_match}.{fully_qualified_table_name}"
                             )
                         except AttributeError:
                             self._log.info(
-                                "Could not retrieve table name %s from provided query."
-                                % fully_qualified_table_name
+                                f"Could not retrieve table name {fully_qualified_table_name} from provided query."
                             )
 
                             return None

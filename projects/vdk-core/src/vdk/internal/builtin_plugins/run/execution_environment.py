@@ -22,7 +22,7 @@ class ExecutionEnvironment:
             log.debug(
                 f"Failed getting {property_name}. Will use unknown instead. Exception: {e} "
             )
-            value = "unknown-" + property_name
+            value = f"unknown-{property_name}"
         return value
 
     @functools.lru_cache(maxsize=None)

@@ -117,12 +117,10 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
                 errors.log_and_throw(
                     errors.ResolvableBy.CONFIG_ERROR,
                     log,
-                    "Properties API client cannot be chosen.",  # set by handler
-                    f"Too many choices for properties client implementation.",
-                    f"Properties API functionality does not work.",  # set by handler
-                    f"Configure which properties client implementation "
-                    f"to use with properties_default_type config option. "
-                    f"See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",
+                    "Properties API client cannot be chosen.",
+                    "Too many choices for properties client implementation.",
+                    "Properties API functionality does not work.",
+                    f"Configure which properties client implementation to use with properties_default_type config option. See config-help for help on configuration. Existing properties types are: {list(self.__properties_builders.keys())}",
                 )
 
             for p in self.__config.get_properties_write_preprocess_sequence():
@@ -164,14 +162,11 @@ class PropertiesRouter(IPropertiesRegistry, IProperties):
         if not countermeasures:
             countermeasures = " Check why it happened and try to resolve the issue or open a ticket to SRE team."
 
-        error_handler = lambda methodname: errors.log_and_throw(
+        return lambda methodname: errors.log_and_throw(
             to_be_fixed_by=errors.ResolvableBy.CONFIG_ERROR,
             log=logging.getLogger(__name__),
-            what_happened="I'm trying to call method '{}' and failed.".format(
-                methodname
-            ),
+            what_happened=f"I'm trying to call method '{methodname}' and failed.",
             why_it_happened=why,
             consequences="Current  Step will fail, and as a result the whole Data Job will fail.",
             countermeasures=countermeasures,
         )
-        return error_handler

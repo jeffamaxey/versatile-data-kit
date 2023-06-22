@@ -18,7 +18,7 @@ test_utils.disable_vdk_authentication()
 
 
 def _get_data_job_info():
-    data = {
+    return {
         "job_name": "test-job",
         "description": "Description",
         "config": {
@@ -40,11 +40,10 @@ def _get_data_job_info():
         },
         "team": "test-team",
     }
-    return data
 
 
 def _get_deployment_info():
-    data = [
+    return [
         {
             "enabled": False,
             "job_version": "11a403ba",
@@ -53,11 +52,10 @@ def _get_deployment_info():
             "last_deployed_date": "2021-02-25T09:16:53.323Z",
         }
     ]
-    return data
 
 
 def _get_executions_info():
-    data = [
+    return [
         {
             "id": "test-vdk-latest-1625735700",
             "job_name": "test-job",
@@ -89,7 +87,6 @@ def _get_executions_info():
             },
         },
     ]
-    return data
 
 
 def test_show(httpserver: PluginHTTPServer):

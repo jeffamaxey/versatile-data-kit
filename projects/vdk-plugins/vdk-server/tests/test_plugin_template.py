@@ -3,4 +3,4 @@
 
 
 def test_plugin_template():
-    assert True
+    pass

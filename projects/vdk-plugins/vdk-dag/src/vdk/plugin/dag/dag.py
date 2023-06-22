@@ -53,32 +53,32 @@ class Dag:
             time_between_status_check_seconds=dags_config.dags_time_between_status_check_seconds(),
         )
         self._dag_validator = DagValidator()
-        if job_name is not None:
-            if execution_id is not None:
-                try:
-                    self._started_by = (
-                        self._job_executor.execution_type(
-                            job_name, team_name, execution_id
-                        )
-                        + "/"
-                        + job_name
+        if job_name is None:
+            self._started_by = "manual/default"
+
+        elif execution_id is not None:
+            try:
+                self._started_by = (
+                    self._job_executor.execution_type(
+                        job_name, team_name, execution_id
                     )
-                except ApiException as e:
-                    if e.status == 404:
-                        log.debug(
-                            f"Job {job_name} of team {team_name} with execution id {execution_id} failed. "
-                            f"Local job runs return 404 status when getting the execution type: {e}"
-                        )
-                    else:
-                        log.info(
-                            f"Unexpected error while checking for job execution type for job {job_name} "
-                            f"with execution id {execution_id} of team {team_name}: {e}"
-                        )
-                    self._started_by = f"manual/{job_name}"
-            else:
+                    + "/"
+                    + job_name
+                )
+            except ApiException as e:
+                if e.status == 404:
+                    log.debug(
+                        f"Job {job_name} of team {team_name} with execution id {execution_id} failed. "
+                        f"Local job runs return 404 status when getting the execution type: {e}"
+                    )
+                else:
+                    log.info(
+                        f"Unexpected error while checking for job execution type for job {job_name} "
+                        f"with execution id {execution_id} of team {team_name}: {e}"
+                    )
                 self._started_by = f"manual/{job_name}"
         else:
-            self._started_by = "manual/default"
+            self._started_by = f"manual/{job_name}"
 
     def build_dag(self, jobs: List[Dict]):
         """

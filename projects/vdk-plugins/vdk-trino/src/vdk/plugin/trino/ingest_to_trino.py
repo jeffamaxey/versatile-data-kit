@@ -82,7 +82,7 @@ class IngestToTrino(IIngesterPlugin):
                 errors.find_whom_to_blame_from_exception(e),
                 log,
                 f"Failed to sent payload into table {destination_table}",
-                "Unknown error. Error message was : " + str(e),
+                f"Unknown error. Error message was : {str(e)}",
                 "Will not be able to send the payload for ingestion",
                 "See error message for help ",
                 e,
@@ -93,9 +93,9 @@ class IngestToTrino(IIngesterPlugin):
     def __to_bool(value: Any) -> bool:
         if isinstance(value, bool):
             return value
-        if value == "true" or value == "True":
+        if value in ["true", "True"]:
             return True
-        if value == "false" or value == "False":
+        if value in ["false", "False"]:
             return False
         raise ValueError("bool cast accept only True/true/False/false values.")
 
@@ -104,23 +104,17 @@ class IngestToTrino(IIngesterPlugin):
             log.debug(f"Cast {key} to type {value_type}")
             if value_type == bool:
                 return self.__to_bool(new_value)
-            if value_type == float:
-                value_with_float_type = float(new_value)
-                if math.isnan(value_with_float_type):
-                    return None
-                else:
-                    return value_with_float_type
-            else:
+            if value_type != float:
                 return value_type(new_value)
+            value_with_float_type = float(new_value)
+            return None if math.isnan(value_with_float_type) else value_with_float_type
         except Exception as e:
             raise UserCodeError(
                 ErrorMessage(
                     "Cannot ingest payload.",
-                    f"The value of the passed with field key (or column name) {key} is not expected type. "
-                    f"Expected field type is {value_type}. ",
+                    f"The value of the passed with field key (or column name) {key} is not expected type. Expected field type is {value_type}. ",
                     f"We could not convert the value to that type. Error is {e}",
-                    f"In order to ensure that we do not overwrite with bad value, "
-                    f"the operation aborts.",
+                    'In order to ensure that we do not overwrite with bad value, the operation aborts.',
                     "Inspect the job code and fix the passed data column names or dictionary keys",
                 )
             ) from e
@@ -130,22 +124,22 @@ class IngestToTrino(IIngesterPlugin):
         trino_type = trino_type.lower()
         if "varchar" in trino_type:
             return str
-        if trino_type in ("double", "real"):
+        if trino_type in {"double", "real"}:
             return float
         if "decimal" in trino_type:
             return float
-        if "boolean" == trino_type:
+        if trino_type == "boolean":
             return bool
-        if trino_type in ("bigint", "tinyint", "integer", "smallint"):
+        if trino_type in {"bigint", "tinyint", "integer", "smallint"}:
             return int
         # default to string
         return str
 
     def __get_values_for_fields(self, payload: List[dict], fields: list, types: list):
-        types_dict = dict()
-        for field, field_type in zip(fields, types):
-            types_dict[field] = self.__trino_type_to_python_type_map(field_type)
-
+        types_dict = {
+            field: self.__trino_type_to_python_type_map(field_type)
+            for field, field_type in zip(fields, types)
+        }
         params = []
         for obj in payload:
             for field in fields:
@@ -164,9 +158,7 @@ class IngestToTrino(IIngesterPlugin):
     def __lowercase_keys_in_payload(payload):
         new_payload = []
         for obj in payload:
-            new_obj = dict()
-            for k, v in obj.items():
-                new_obj[k.lower()] = v
+            new_obj = {k.lower(): v for k, v in obj.items()}
             new_payload.append(new_obj)
         return new_payload
 
@@ -189,10 +181,10 @@ class IngestToTrino(IIngesterPlugin):
         fields = [field_tuple[0] for field_tuple in columns_info]
         types = [field_tuple[1] for field_tuple in columns_info]
 
-        row_to_be_replaced = f"({', '.join('?' for field in fields)})"
+        row_to_be_replaced = f"({', '.join('?' for _ in fields)})"
 
         return (
-            f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES {', '.join([row_to_be_replaced for i in range(payload_size)])}",
+            f"INSERT INTO {destination_table} ({', '.join(fields)}) VALUES {', '.join([row_to_be_replaced for _ in range(payload_size)])}",
             fields,
             types,
         )

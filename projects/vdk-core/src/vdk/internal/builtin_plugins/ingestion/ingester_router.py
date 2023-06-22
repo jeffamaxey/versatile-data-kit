@@ -41,8 +41,8 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         self._cfg: Configuration = cfg
         self._state: StateStore = core_state
         self._log: logging.Logger = logging.getLogger(__name__)
-        self._cached_ingesters: Dict[str, IngesterBase] = dict()
-        self._ingester_builders: Dict[str, IngesterPluginFactory] = dict()
+        self._cached_ingesters: Dict[str, IngesterBase] = {}
+        self._ingester_builders: Dict[str, IngesterPluginFactory] = {}
 
     def add_ingester_factory_method(
         self,
@@ -282,7 +282,7 @@ class IngesterRouter(IIngesterRegistry, IIngester):
         method iterates over all ingestion plugins, and blocks the termination of the
         process before all queues are emptied.
         """
-        errors_list: Dict = dict()
+        errors_list: Dict = {}
         for method, ingester in self._cached_ingesters.items():
             try:
                 ingester.close()

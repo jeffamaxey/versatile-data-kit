@@ -164,18 +164,16 @@ class ManagedCursor(ProxyCursor):
         self._log.info("Executing query:\n%s" % managed_operation.get_operation())
         execution_cursor = ExecutionCursor(self._cursor, managed_operation, self._log)
         if self.__connection_hook_spec:
-            result = self.__connection_hook_spec.db_connection_execute_operation(
+            return self.__connection_hook_spec.db_connection_execute_operation(
                 execution_cursor=execution_cursor
             )
-        else:
-            self._log.debug(
-                "No connection hook spec defined. "
-                "Will invoke standard cursor execute implementation."
-            )
-            result = DefaultConnectionHookImpl().db_connection_execute_operation(
-                execution_cursor
-            )
-        return result
+        self._log.debug(
+            "No connection hook spec defined. "
+            "Will invoke standard cursor execute implementation."
+        )
+        return DefaultConnectionHookImpl().db_connection_execute_operation(
+            execution_cursor
+        )
 
     def fetchall(self) -> Collection[Collection[Any]]:
         self._log.info("Fetching all results from query ...")

@@ -24,9 +24,7 @@ class LineageTable:
     table: str
 
     def __str__(self):
-        s = ""
-        if self.catalog:
-            s = f"{self.catalog}."
+        s = f"{self.catalog}." if self.catalog else ""
         if self.schema:
             s = f"{s}{self.schema}."
         return f"{s}{self.table}"

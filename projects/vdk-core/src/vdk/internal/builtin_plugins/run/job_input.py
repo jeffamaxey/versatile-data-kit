@@ -88,7 +88,7 @@ class JobInput(IJobInput):
                 "If passed job arguments will still be used"
             )
         else:
-            sql_susbstitute_args.update(self.get_all_properties())
+            sql_susbstitute_args |= self.get_all_properties()
         sql_susbstitute_args.update(self.get_execution_properties())
 
         sql_args = self.get_arguments()
@@ -99,9 +99,7 @@ class JobInput(IJobInput):
             )
         else:
             sql_susbstitute_args.update(sql_args)
-        query = SqlArgumentSubstitutor(sql_susbstitute_args).substitute(query)
-
-        return query
+        return SqlArgumentSubstitutor(sql_susbstitute_args).substitute(query)
 
     def execute_query(self, sql: str):
         if not sql or not sql.strip():
@@ -150,9 +148,7 @@ class JobInput(IJobInput):
         self, template_name: str, template_args: dict
     ) -> ExecutionResult:
         if self.__templates:
-            result = self.__templates.execute_template(template_name, template_args)
-
-            return result
+            return self.__templates.execute_template(template_name, template_args)
         else:
             raise NotImplemented("Templates not wired to JobInput")
 

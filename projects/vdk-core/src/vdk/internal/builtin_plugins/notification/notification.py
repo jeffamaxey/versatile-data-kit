@@ -25,8 +25,7 @@ log = logging.getLogger(__name__)
 
 def __get_list(value: str) -> List[str]:
     result = value.split(";") if value else []
-    result = [v.strip() for v in result if len(v.strip()) > 0]
-    return result
+    return [v.strip() for v in result if len(v.strip()) > 0]
 
 
 def _notify(error_overall, user_error, configuration, state):
@@ -50,10 +49,11 @@ def _notify(error_overall, user_error, configuration, state):
     smtp_cfg = SmtpConfiguration(configuration)
 
     if not error_overall:
-        recipients = __get_list(
-            configuration.get_value(JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value)
-        )
-        if recipients:
+        if recipients := __get_list(
+            configuration.get_value(
+                JobConfigKeys.NOTIFIED_ON_JOB_SUCCESS.value
+            )
+        ):
             subject, body = notification_base.SuccessEmailNotificationMessageBuilder(
                 job_name, job_log_url_template
             ).build(exec_type="run", op_id=op_id)
@@ -67,12 +67,11 @@ def _notify(error_overall, user_error, configuration, state):
         return
 
     if user_error:
-        recipients = __get_list(
+        if recipients := __get_list(
             configuration.get_value(
                 JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_USER_ERROR.value
             )
-        )
-        if recipients:
+        ):
             subject, body = notification_base.UserErrorEmailNotificationMessageBuilder(
                 job_name, job_log_url_template
             ).build(exec_type="run", op_id=op_id, msg=user_error)
@@ -85,13 +84,11 @@ def _notify(error_overall, user_error, configuration, state):
             )
         return
 
-    recipients = __get_list(
+    if recipients := __get_list(
         configuration.get_value(
             JobConfigKeys.NOTIFIED_ON_JOB_FAILURE_PLATFORM_ERROR.value
         )
-    )
-
-    if recipients:
+    ):
         subject, body = notification_base.InfraErrorEmailNotificationMessageBuilder(
             job_name, job_log_url_template
         ).build(exec_type="run", op_id=op_id)

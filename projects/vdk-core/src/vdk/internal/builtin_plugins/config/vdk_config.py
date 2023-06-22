@@ -193,7 +193,7 @@ class JobConfigIniPlugin:
 
     @hookimpl(tryfirst=True)
     def vdk_configure(self, config_builder: ConfigurationBuilder) -> None:
-        description = f"""Used only during vdk run  - load configuration specified in
+        description = """Used only during vdk run  - load configuration specified in
 config.ini file in the data job's root directory.
 It can be overridden by environment variables configuration (set by operators in Cloud deployment or by users locally).
          """

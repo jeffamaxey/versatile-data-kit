@@ -31,7 +31,7 @@ def run(job_input: IJobInput):
     target_schema = args.get("target_schema")
     source_view = args.get("source_view")
     target_table = args.get("target_table")
-    tmp_target_table = "tmp_" + target_table
+    tmp_target_table = f"tmp_{target_table}"
     trino_queries = TrinoTemplateQueries(job_input)
 
     log.debug("Check if tmp target has data.")

@@ -109,8 +109,7 @@ class RemoteDataJob:
         ).headers
         log.debug(f"Received headers: {headers}")
 
-        job_execution_id = os.path.basename(headers["Location"])
-        return job_execution_id
+        return os.path.basename(headers["Location"])
 
     def cancel_job_execution(self, execution_id: str) -> None:
         """
@@ -159,10 +158,9 @@ class RemoteDataJob:
 
         :return: A list of DataJobExecution objects for the available executions.
         """
-        job_execution_list = self.__execution_api.data_job_execution_list(
+        return self.__execution_api.data_job_execution_list(
             team_name=self.__team_name, job_name=self.__job_name
         )
-        return job_execution_list
 
     def wait_for_job(
         self,
@@ -196,14 +194,11 @@ class RemoteDataJob:
                 log.info(f"Job status: {job_execution}")
                 log.info(f"Job logs: {self.get_job_execution_log(execution_id)}")
                 return job_status
-            elif job_status == JobStatus.SUBMITTED or job_status == JobStatus.RUNNING:
+            elif job_status in [JobStatus.SUBMITTED, JobStatus.RUNNING]:
                 continue
-            elif job_status == JobStatus.CANCELLED or job_status == JobStatus.SKIPPED:
+            elif job_status in [JobStatus.CANCELLED, JobStatus.SKIPPED]:
                 log.info(f"Job execution {execution_id} has been {job_status}.")
-            elif (
-                job_status == JobStatus.USER_ERROR
-                or job_status == JobStatus.PLATFORM_ERROR
-            ):
+            elif job_status in [JobStatus.USER_ERROR, JobStatus.PLATFORM_ERROR]:
                 log.info(f"Job logs: {self.get_job_execution_log(execution_id)}")
                 log.info(
                     f"Job execution {execution_id} has failed due to a {job_status.replace('_', ' ')}. "
@@ -240,11 +235,9 @@ class RemoteDataJob:
         return DataJobsExecutionApi(api_client)
 
     def _get_access_token(self) -> str:
-        if self.auth:
-            return self.auth.read_access_token()
-        else:
+        if not self.auth:
             self._login()
-            return self.auth.read_access_token()
+        return self.auth.read_access_token()
 
     def _login(self) -> None:
         self.auth = Authentication(cache_locally=True)

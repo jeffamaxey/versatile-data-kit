@@ -46,7 +46,7 @@ class KinitGSSAPIAuthenticator(BaseAuthenticator):
             log.info(f"KRB5CCNAME was already set to {self._oldKRB5CCNAME}")
         except KeyError:
             tmpfile = tempfile.NamedTemporaryFile(prefix="vdkkrb5cc", delete=True).name
-            os.environ["KRB5CCNAME"] = "FILE:" + tmpfile
+            os.environ["KRB5CCNAME"] = f"FILE:{tmpfile}"
             log.info(f"KRB5CCNAME is set to a new file {tmpfile}")
             self._tmp_file = tmpfile
 

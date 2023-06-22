@@ -34,11 +34,14 @@ def run(job_input: IJobInput):
         log.info(f"Query result: {result}")
 
         if result:
-            if result[0][0] != id1 and result[0][1] != id2 and result[0][2] != id3:
+            if (
+                result[0][0] != id1
+                and result[0][1] != id2
+                and result[0][2] != id3
+            ):
                 raise Exception("The data is not ingested correctly")
-            else:
-                props["succeeded"] = "true"
-                break
+            props["succeeded"] = "true"
+            break
         else:
             time.sleep(10)
 

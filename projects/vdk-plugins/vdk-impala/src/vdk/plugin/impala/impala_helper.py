@@ -56,10 +56,7 @@ class ImpalaHelper:
             if column_name.startswith(section_start):  # new section begins
                 searched_sectioned_started = True
             if searched_sectioned_started and not is_in_columns_section:
-                if column_name.strip() == "# col_name":  # column info follows
-                    is_in_columns_section = True
-                else:
-                    is_in_columns_section = False
+                is_in_columns_section = column_name.strip() == "# col_name"
                 continue
             if searched_sectioned_started:
                 if column_name.startswith(second_end):
@@ -141,11 +138,10 @@ class ImpalaHelper:
                     f"decimal({precision_value},{scale_value})"
                 ] = pyarrow.decimal128(precision_value, scale_value)
 
-        parquet_schema = []
-        for column_name, column_type in table_columns.items():
-            parquet_schema.append(
-                (column_name, impala_type_to_pyarrow_type_map[column_type])
-            )
+        parquet_schema = [
+            (column_name, impala_type_to_pyarrow_type_map[column_type])
+            for column_name, column_type in table_columns.items()
+        ]
         return pyarrow.schema(parquet_schema)
 
     def get_parquet_schema(self, table):
@@ -156,8 +152,4 @@ class ImpalaHelper:
 
     @staticmethod
     def get_insert_sql_partition_clause(partitions):
-        # https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/impala_insert.html
-
-        # NOTE: https://github.com/kayak/pypika looks interesting if we start having more complex query buildings
-        sql = "PARTITION (" + ",".join("`" + p + "`" for p in partitions.keys()) + ")"
-        return sql
+        return "PARTITION (" + ",".join(f"`{p}`" for p in partitions.keys()) + ")"

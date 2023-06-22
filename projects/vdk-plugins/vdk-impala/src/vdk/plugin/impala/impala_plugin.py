@@ -115,8 +115,7 @@ class ImpalaPlugin:
         out: HookCallResult
         out = yield
 
-        exception = out.get_result().exception
-        if exception:
+        if exception := out.get_result().exception:
             exception = (
                 exception.__cause__
                 if hasattr(exception, "__cause__") and exception.__cause__
@@ -167,8 +166,7 @@ def vdk_start(plugin_registry: IPluginRegistry, command_line_args: List):
 
 def get_jobs_parent_directory() -> pathlib.Path:
     current_dir = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
-    jobs_dir = current_dir.joinpath("templates")
-    return jobs_dir
+    return current_dir.joinpath("templates")
 
 
 def get_job_path(job_name: str) -> str:

@@ -39,7 +39,7 @@ class MinikerberosGSSAPIAuthenticator(BaseAuthenticator):
         self._ccache_file = tempfile.NamedTemporaryFile(
             prefix="vdkkrb5cc", delete=True
         ).name
-        os.environ["KRB5CCNAME"] = "FILE:" + self._ccache_file
+        os.environ["KRB5CCNAME"] = f"FILE:{self._ccache_file}"
         log.info(f"KRB5CCNAME is set to a new file {self._ccache_file}")
 
     def __repr__(self):

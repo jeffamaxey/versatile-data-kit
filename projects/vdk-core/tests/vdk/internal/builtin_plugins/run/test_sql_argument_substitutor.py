@@ -9,8 +9,7 @@ from vdk.internal.builtin_plugins.run.sql_argument_substitutor import (
 @pytest.fixture
 def substitutor() -> SqlArgumentSubstitutor:
     properties = {"db": "history", "int": 5, "DB": "history_staging"}
-    substitutor = SqlArgumentSubstitutor(properties)
-    return substitutor
+    return SqlArgumentSubstitutor(properties)
 
 
 @pytest.mark.parametrize(

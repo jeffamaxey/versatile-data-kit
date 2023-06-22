@@ -9,7 +9,7 @@ from vdk.plugin.impala.templates.utility import get_file_content
 from vdk.plugin.impala.templates.utility import get_staging_table_name
 
 SQL_FILES_FOLDER = (
-    os.path.dirname(os.path.abspath(__file__)) + "/02-requisite-sql-scripts"
+    f"{os.path.dirname(os.path.abspath(__file__))}/02-requisite-sql-scripts"
 )
 
 """
@@ -55,22 +55,21 @@ def run(job_input: IJobInput):
         )
         job_input.execute_query(insert_into_staging)
 
-        if check(staging_table):
-            insert_into_target = overwrite_target_query.format(
-                staging_schema=staging_schema,
-                staging_table_name=staging_table_name,
-                _vdk_template_insert_partition_clause=partition_clause,
-                target_schema=target_schema,
-                target_table=target_table,
-            )
-            job_input.execute_query(insert_into_target)
-        else:
+        if not check(staging_table):
             raise DataQualityException(
                 checked_object=staging_table,
                 source_view=f"{source_schema}.{source_view}",
                 target_table=target_table_full_name,
             )
 
+        insert_into_target = overwrite_target_query.format(
+            staging_schema=staging_schema,
+            staging_table_name=staging_table_name,
+            _vdk_template_insert_partition_clause=partition_clause,
+            target_schema=target_schema,
+            target_table=target_table,
+        )
+        job_input.execute_query(insert_into_target)
     else:
         insert_query = insert_query.replace(
             "{current_target_schema}.{current_target_table}",

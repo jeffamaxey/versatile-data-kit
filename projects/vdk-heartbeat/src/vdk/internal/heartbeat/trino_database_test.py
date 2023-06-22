@@ -30,25 +30,19 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
             bool: "boolean",
             datetime: "timestamp",
         }
-        trino_type = python_type_to_trino_type_map.get(column_type, None)
-        if trino_type:
+        if trino_type := python_type_to_trino_type_map.get(column_type, None):
             return trino_type
-        else:
-            log.warning(
-                f"Cannot convert that column type : {column_type}. Will assume varchar"
-                f"Current those are possible: {python_type_to_trino_type_map}"
-            )
-            return "varchar"
+        log.warning(
+            f"Cannot convert that column type : {column_type}. Will assume varchar"
+            f"Current those are possible: {python_type_to_trino_type_map}"
+        )
+        return "varchar"
 
     @staticmethod
     def _python_value_to_trino_value(column_value: Any):
         if isinstance(column_value, str):
             return f"'{column_value}'"
-        elif isinstance(column_value, int):
-            return f"{column_value}"
-        elif isinstance(column_value, float):
-            return f"{column_value}"
-        elif isinstance(column_value, bool):
+        elif isinstance(column_value, (int, float, bool)):
             return f"{column_value}"
         elif isinstance(column_value, datetime):
             return f"TIMESTAMP '{column_value.isoformat(sep=' ', timespec = 'milliseconds')}'"
@@ -60,7 +54,7 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
     def _create_table(self, db: str, table_name: str, columns: Dict[str, Type]):
         query = f"""
         CREATE TABLE IF NOT EXISTS {db}.{table_name}(
-            {",".join([k + " " + self._python_type_to_trino_type(v) for k, v in columns.items()])}
+            {",".join([f"{k} {self._python_type_to_trino_type(v)}" for k, v in columns.items()])}
         )
         """
         # TODO: escapes?
@@ -75,7 +69,7 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
         values = ",".join(
             [self._python_value_to_trino_value(v) for _, v in row.items()]
         )
-        columns = ",".join([k for k, _ in row.items()])
+        columns = ",".join(list(row))
         query = f"INSERT INTO {db}.{table} ({columns}) values ({values})"
         return self._execute_query(query)
 
@@ -84,7 +78,7 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
     ) -> List[List]:
         where_columns = " and ".join(
             [
-                k + "=" + self._python_value_to_trino_value(v)
+                f"{k}={self._python_value_to_trino_value(v)}"
                 for k, v in column_filters.items()
             ]
         )
@@ -111,7 +105,7 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
 
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        conn = dbapi.connect(
+        return dbapi.connect(
             host=self.config.DATABASE_HOST,
             port=self.config.DATABASE_PORT,
             user=self.config.DATABASE_USER,
@@ -124,4 +118,3 @@ class TrinoDatabaseRunTest(DatabaseHeartbeatTest):
             verify=self.config.DATABASE_VERIFY_SSL,
             request_timeout=self.config.DATABASE_CONNECTION_TIMEOUT_SECONDS,
         )
-        return conn

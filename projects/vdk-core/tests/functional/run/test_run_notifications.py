@@ -19,7 +19,7 @@ os.environ["SMTPD_SSL_CERTS_PATH"] = "."
 def __get_smtp_env(smtpd: SMTPDFix):
     # https://github.com/bebleo/smtpdfix#using
     smtpd.config.host = "127.0.0.1"
-    env = {
+    return {
         "VDK_NOTIFICATION_ENABLED": "true",
         "VDK_ENABLE_ATTEMPT_NOTIFICATIONS": "true",
         "VDK_NOTIFICATION_SMTP_HOST": smtpd.hostname,
@@ -30,7 +30,6 @@ def __get_smtp_env(smtpd: SMTPDFix):
         "VDK_NOTIFICATION_SMTP_USE_TLS": "false",
         "VDK_NOTIFICATION_SENDER": "sender@unittest.test",
     }
-    return env
 
 
 def test_run_successfull(smtpd: SMTPDFix):

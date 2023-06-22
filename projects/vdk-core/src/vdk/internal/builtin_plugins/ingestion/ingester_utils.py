@@ -56,26 +56,24 @@ class DecimalJsonEncoder(JSONEncoder):
     """
 
     def default(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        return super().default(obj)
+        return float(obj) if isinstance(obj, Decimal) else super().default(obj)
 
 
 def get_page_generator(data, page_size=10000):
     # TODO add support for Pandas
     try:
         while True:
-            page = data.fetchmany(page_size)
-            if not page:
+            if page := data.fetchmany(page_size):
+                yield page
+            else:
                 return
-            yield page
     except AttributeError:
         it = iter(data)
         while True:
-            page = list(itertools.islice(it, page_size))
-            if not page:
+            if page := list(itertools.islice(it, page_size)):
+                yield page
+            else:
                 return
-            yield page
 
 
 def validate_column_count(data: iter, column_names: iter):
@@ -105,7 +103,7 @@ def convert_table(table: iter, column_names: iter) -> List[dict]:
     """
     converted_rows = []
     for row in table:
-        cdf_row = dict()
+        cdf_row = {}
         for index, value in enumerate(row):
             value = _handle_special_types(value)
             cdf_row[column_names[index]] = value
@@ -124,11 +122,7 @@ def _handle_special_types(value: Any) -> Any:
     """
     if isinstance(value, datetime.date):
         return value.isoformat()
-    if isinstance(value, uuid.UUID):
-        return str(
-            value
-        )  # there is no default json serializer for UUID type, hence cast to string
-    return value
+    return str(value) if isinstance(value, uuid.UUID) else value
 
 
 def wait_completion(objects_queue: queue.Queue, payloads_queue: queue.Queue):

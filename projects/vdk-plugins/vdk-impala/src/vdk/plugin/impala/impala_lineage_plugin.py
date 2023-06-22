@@ -54,12 +54,8 @@ class ImpalaLineagePlugin:
                 # at the time of writing SystemError occurs "PY_SSIZE_T_CLEAN macro must be defined for '#' formats"
                 # when trying to calculate lineage information, TODO resolve the above error for python 3.10
                 hive_cursor = cast(HiveServer2Cursor, execution_cursor)
-                lineage_data = self._get_lineage_data(hive_cursor)
-                if (
-                    lineage_data
-                ):  # some queries do not have data lineage - select 1, create table, compute stats, etc
+                if lineage_data := self._get_lineage_data(hive_cursor):
                     self._lineage_logger.send(lineage_data)
-        # do not stop job execution if error occurs during lineage processing
         except Exception:
             log.warning(
                 "Error occurred during lineage calculation. No lineage information will be generated."
@@ -82,18 +78,19 @@ class ImpalaLineagePlugin:
         if "Query Status: OK" not in query_profile:
             return None  # do not capture lineage for failed queries
         inputs, output = self._parse_inputs_outputs(query_profile)
-        if not inputs and not output:
+        if inputs or output:
+            return LineageData(
+                query=query_statement,
+                query_status="OK",
+                query_type=None,  # TODO specify query_type once there is clear spec for it
+                input_tables=[
+                    self._get_lineage_table_from_table_name(table_name)
+                    for table_name in inputs
+                ],
+                output_table=self._get_lineage_table_from_table_name(output),
+            )
+        else:
             return None  # no lineage was present in the query plan, e.g. select 1 query
-        return LineageData(
-            query=query_statement,
-            query_status="OK",
-            query_type=None,  # TODO specify query_type once there is clear spec for it
-            input_tables=[
-                self._get_lineage_table_from_table_name(table_name)
-                for table_name in inputs
-            ],
-            output_table=self._get_lineage_table_from_table_name(output),
-        )
 
     @staticmethod
     def _does_query_have_lineage(query_statement: str) -> bool:
@@ -129,10 +126,8 @@ class ImpalaLineagePlugin:
             # profile of impala will not return any lineage
             # info (scan/write hdfs) as our goal of this method is
             # to reduce non-lineage query with a non-complex way
-            return (
-                "select " in query_statement or "select" + os.linesep in query_statement
-            )
-        if query_statement.startswith(
+            return "select " in query_statement or f"select{os.linesep}" in query_statement
+        return not query_statement.startswith(
             (
                 "alter",
                 "compute",
@@ -148,24 +143,17 @@ class ImpalaLineagePlugin:
                 "truncate",
                 "use",
             )
-        ):
-            # these commands are not providing lineage data in the profile at the moment
-            return False
-
-        return True
+        )
 
     @staticmethod
     def _parse_inputs_outputs(query_profile: str) -> Tuple[list, str]:
         inputs = []
         output = None
         for line in query_profile.splitlines():
-            match = re.search(r"(?<=SCAN HDFS \[)[\w\.]*", line)
-            if match:
-                inputs.append(match.group(0))
-            else:
-                match = re.search(r"(?<=WRITE TO HDFS \[)[\w\.]*", line)
-                if match:
-                    output = match.group(0)
+            if match := re.search(r"(?<=SCAN HDFS \[)[\w\.]*", line):
+                inputs.append(match[0])
+            elif match := re.search(r"(?<=WRITE TO HDFS \[)[\w\.]*", line):
+                output = match[0]
         return list(set(inputs)), output
 
     @staticmethod

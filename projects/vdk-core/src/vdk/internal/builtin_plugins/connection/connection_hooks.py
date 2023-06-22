@@ -49,15 +49,7 @@ class ConnectionHookSpecFactory:
         It also initializes some of the hooks (now only db_connection_execute_operation) with default implementations.
         :return: ConnectionHookSpec
         """
-        if self.__plugin_registry:
-            if not self.__plugin_registry.has_plugin(
-                DefaultConnectionHookImpl.__name__
-            ):
-                self.__plugin_registry.load_plugin_with_hooks_impl(
-                    DefaultConnectionHookImpl(), DefaultConnectionHookImpl.__name__
-                )
-            return cast(ConnectionHookSpec, self.__plugin_registry.hook())
-        else:
+        if not self.__plugin_registry:
             raise PlatformServiceError(
                 ErrorMessage(
                     "Managed Cursor not initialized properly",
@@ -68,3 +60,10 @@ class ConnectionHookSpecFactory:
                     "and/or revert to previous version of vdk-core.",
                 )
             )
+        if not self.__plugin_registry.has_plugin(
+            DefaultConnectionHookImpl.__name__
+        ):
+            self.__plugin_registry.load_plugin_with_hooks_impl(
+                DefaultConnectionHookImpl(), DefaultConnectionHookImpl.__name__
+            )
+        return cast(ConnectionHookSpec, self.__plugin_registry.hook())

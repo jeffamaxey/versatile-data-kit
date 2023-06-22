@@ -22,7 +22,7 @@ def create_ingester_router(configs) -> IngesterRouter:
         "ingester_log_upload_errors": False,
         "ingestion_payload_aggregator_timeout_seconds": 2,
     }
-    config_key_value_pairs.update(configs)
+    config_key_value_pairs |= configs
     test_config = Configuration({}, config_key_value_pairs, {})
     state_store = MagicMock(spec=StateStore)
     return IngesterRouter(test_config, state_store)
